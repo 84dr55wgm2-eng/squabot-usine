@@ -68,6 +68,9 @@ preparer() {
   else ok "déjà faite (trousseau du Mac)"; fi
 
   titre "3. Clé d'accès aux données (SQUABOT_TOKEN)"
+  if [ -z "$(trousseau_lire SQUABOT_TOKEN_FAIT)" ] && "$GH" secret list --repo "$USINE" 2>/dev/null | grep -q '^SQUABOT_TOKEN'; then
+    trousseau_ecrire SQUABOT_TOKEN_FAIT oui
+  fi
   if [ -z "$(trousseau_lire SQUABOT_TOKEN_FAIT)" ]; then
     echo "  Sur la page qui s'ouvre :"
     echo "    • Token name : squabot      • Expiration : la plus longue proposée"
