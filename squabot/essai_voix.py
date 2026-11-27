@@ -28,7 +28,8 @@ def voxcpm():
     m = VoxCPM.from_pretrained("openbmb/VoxCPM2", load_denoiser=False, optimize=False, device="cpu")
     for nom, desc in VOXCPM.items():
         t0 = time.time()
-        wav = m.generate(text=f"({desc}){TEXTE}", cfg_value=2.0, inference_timesteps=10, seed=7)
+        import torch; torch.manual_seed(7)
+        wav = m.generate(text=f"({desc}){TEXTE}", cfg_value=2.0, inference_timesteps=10)
         sf.write("/tmp/v.wav", wav, m.tts_model.sample_rate); mp3("/tmp/v.wav", f"voxcpm-{nom}")
         print(f"  {nom} : {time.time() - t0:.0f} s de calcul pour {len(wav) / m.tts_model.sample_rate:.1f} s d'audio", flush=True)
 
