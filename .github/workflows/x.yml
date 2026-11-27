@@ -25,20 +25,6 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: "3.13", cache: pip}
       - run: pip install -q PyYAML gallery-dl==1.32.21
-      - name: Diagnostic
-        run: |
-          python - <<'P'
-          import json, subprocess
-          from squabot import x
-          c = x._conf()
-          r = subprocess.run(["gallery-dl", "--config", c, "-j", "--range", "1-2", "https://x.com/lytrxppr/following"], capture_output=True, text=True)
-          d = json.loads(r.stdout); print("cles", sorted(d[0][2].keys())[:40]); print({k: str(v)[:40] for k, v in d[0][2].items() if not isinstance(v, (dict, list))})
-          for u in ["https://x.com/i/user/495445147", "https://x.com/i/user/495445147/tweets", "https://x.com/i/user/495445147/timeline"]:
-              r = subprocess.run(["gallery-dl", "--config", c, "-j", "--range", "1-2", u], capture_output=True, text=True)
-              try: d = json.loads(r.stdout or "[]")
-              except Exception: d = []
-              print(u, r.returncode, [(e[0], str(e[1])[:50]) for e in d if isinstance(e, list)][:3], r.stderr.strip().splitlines()[-1:] )
-          P
       - name: Lire les comptes
         run: python -m squabot x suivre
       - name: Essai de téléchargement (meilleur post avec vidéo)

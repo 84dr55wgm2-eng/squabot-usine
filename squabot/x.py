@@ -32,8 +32,8 @@ def abonnements(moi, conf=None):
     try:
         for e in json.loads(r.stdout or "[]"):
             if isinstance(e, list) and len(e) >= 3 and e[0] == 6 and isinstance(e[2], dict):
-                u = e[2].get("user") if isinstance(e[2].get("user"), dict) else e[2]
-                ps = u.get("name") or e[1].split("x.com/")[-1]        # pseudo, sinon « i/user/<id> »
+                u = e[2]
+                ps = (u.get("core") or {}).get("screen_name") or (f"id:{u['rest_id']}" if u.get("rest_id") else "")
                 if ps and ps != moi and ps not in pseudos: pseudos.append(ps)
     except json.JSONDecodeError: pass
     if not pseudos: print(f"  abonnements de @{moi} illisibles ({(r.stderr.strip().splitlines() or ['?'])[-1][:160]})", flush=True)
