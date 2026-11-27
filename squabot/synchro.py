@@ -30,7 +30,7 @@ def depuis_demande(d, ancien=None):
         if r == "x" and d["nsfw"] == "adulte": reseaux[r]["marquage_adulte"] = True
     c = {"nom": d["nom"], "theme": d["theme"], "langue": langue,
          "registre": d.get("registre") if d.get("registre") in REGISTRES else "jeune",
-         "accent": d["voix"][:5] if re.fullmatch(r"[a-z]{2}-[A-Z]{2}-\w+Neural", str(d.get("voix", ""))) else None, "actif": d.get("statut") != "pause", "nsfw": d["nsfw"], "voix": voix,
+         "accent": voix["voix"][:5] if voix["voix"][:2] == langue else {"fr": "fr-FR", "en": "en-US", "es": "es-ES"}[langue], "actif": d.get("statut") != "pause", "nsfw": d["nsfw"], "voix": voix,
          "rythme": {"videos_par_jour": max(1, min(10, int(d.get("videos_par_jour", 1)))), "heure": ancien.get("rythme", {}).get("heure", "18:00")},
          "validation": "manuelle" if d["nsfw"] == "adulte" or d.get("validation") else "auto",
          "publier_sur": reseaux, "formats": ["short"] + (["compilation"] if d.get("compilation", True) else []),
