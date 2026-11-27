@@ -59,7 +59,8 @@ def voxcpm2():
         if ref:
             subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", ref, "-ac", "1", "-ar", "16000", "/tmp/ref0.wav"], check=True); ref = "/tmp/ref0.wav"
         wav, sr = vox_phrases(m, texte, desc, ref)
-        sf.write("/tmp/v.wav", wav, sr); mp3("/tmp/v.wav", f"voxcpm2-{nom}")
+        from .oral import resserrer
+        sf.write("/tmp/v0.wav", wav, sr); resserrer("/tmp/v0.wav", "/tmp/v.wav"); mp3("/tmp/v.wav", f"voxcpm2-{nom}")
         print(f"  {nom} : {time.time() - t0:.0f} s de calcul pour {len(wav) / sr:.1f} s d'audio", flush=True)
 
 

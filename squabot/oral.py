@@ -63,4 +63,23 @@ def emotion(phrase, registre="jeune"):
 
 
 def phrases(texte):
-    return [x.strip() for x in re.split(r"(?<=[.!?…])\s+|\n+", texte) if x.strip()]
+    """Découpe en phrases ; une question très courte (« Et le pire ? ») reste collée à sa réponse : pas de blanc."""
+    brut = [x.strip() for x in re.split(r"(?<=[.!?…])\s+|\n+", texte) if x.strip()]
+    out = []
+    for x in brut:
+        if out and len(out[-1].split()) <= 4 and out[-1].endswith(("?", "…", "...")):
+            lien = ", c'est que " if re.match(r"(et )?le (pire|plus|truc|problème|souci)", out[-1], re.I) and not re.match(r"c'est", x, re.I) else ", "
+            out[-1] = out[-1].rstrip("?….").rstrip() + lien + x[0].lower() + x[1:]
+        else:
+            out.append(x)
+    return out
+
+
+def resserrer(wav_entree, wav_sortie, pause_max=0.2):
+    """Raccourcit tout silence à `pause_max` secondes (début, fin et entre les phrases) : plus de blancs inutiles."""
+    import subprocess
+    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(wav_entree), "-af",
+                    f"silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05:"
+                    f"stop_periods=-1:stop_duration={pause_max}:stop_threshold=-45dB:stop_silence={pause_max},"
+                    "areverse,silenceremove=start_periods=1:start_threshold=-45dB,areverse",
+                    str(wav_sortie)], check=True)

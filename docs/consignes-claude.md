@@ -59,6 +59,17 @@ avoir son angle, ses faits vérifiés et sa forme. Concrètement, dans `video.js
 - `neutre` : vouvoiement ou forme impersonnelle, ton documentaire vivant.
 - `pose` : voix grave et lente, phrases plus longues, ambiance (horreur, mystère, histoire).
 
+## Écrire humain, pas « IA »
+
+Les tics qui trahissent un texte de machine sont interdits :
+« Et le pire ? … », « Mais attendez… », « Accrochez-vous », « Croyez-le ou non », « Spoiler : », « Plot twist »,
+« Dans un monde où… », « Imaginez un instant », « Ce n'est pas tout », trois adjectifs à la suite, une question
+rhétorique suivie d'un silence, « véritable » et « incroyable » à chaque phrase.
+Écris comme on parle : « Et le pire, c'est que personne n'a rien vu. » Des phrases qui s'enchaînent, des liaisons
+naturelles (« du coup », « sauf que », « bref »), des détails concrets plutôt que des superlatifs.
+La voix lit le texte « oral » produit par `squabot/oral.py` (élisions jeunes, lettres muettes corrigées) : écris en
+français correct, la conversion est automatique, et les sous-titres gardent le texte écrit.
+
 ## Script
 
 - Dans la langue de la chaîne (`langue`), parlé, phrases courtes, une phrase par ligne (`\n`). Accroche choc dans la première ligne.

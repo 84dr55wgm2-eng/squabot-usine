@@ -23,7 +23,16 @@ KOKORO = {"fr": ("ff_siwis", "fr-fr"), "en": ("af_heart", "en-us"), "es": ("ef_d
 
 
 def synthese_auto(texte, sortie, reglage, langue="fr"):
-    """Voix choisie pour le compte ; si c'est Edge et que le service refuse, repli sur Kokoro (jamais d'arrêt)."""
+    """Voix choisie pour le compte, puis silences inutiles raccourcis."""
+    duree, moteur = _synthese(texte, sortie, reglage, langue)
+    from .oral import resserrer
+    import shutil
+    resserrer(sortie, str(sortie) + ".tmp.wav"); shutil.move(str(sortie) + ".tmp.wav", sortie)
+    return sf.info(str(sortie)).duration, moteur
+
+
+def _synthese(texte, sortie, reglage, langue="fr"):
+    """Si c'est Edge et que le service refuse, repli sur Kokoro (jamais d'arrêt)."""
     if reglage.get("modele") == "edge":
         try:
             return synthese_edge(texte, sortie, reglage.get("voix", "fr-FR-HenriNeural"), reglage.get("vitesse", 1.05)), "edge"
