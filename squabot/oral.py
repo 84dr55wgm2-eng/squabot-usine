@@ -80,6 +80,6 @@ def resserrer(wav_entree, wav_sortie, pause_max=0.2):
     import subprocess
     subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(wav_entree), "-af",
                     f"silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05:"
-                    f"stop_periods=-1:stop_duration={pause_max}:stop_threshold=-45dB:stop_silence={pause_max},"
+                    f"stop_periods=-1:stop_duration={pause_max}:stop_threshold=-40dB:stop_silence={pause_max},"
                     "areverse,silenceremove=start_periods=1:start_threshold=-45dB,areverse",
                     str(wav_sortie)], check=True)
