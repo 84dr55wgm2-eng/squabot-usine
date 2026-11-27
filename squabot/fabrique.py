@@ -39,7 +39,9 @@ def resoudre_plans(v, mots, duree):
         pos = idx
         q = dict(p, _id=i, _idx=idx, _debut=0.0 if i == 0 else mots[idx]["s"])
         if p.get("tampon"):
-            j = voix.trouver(mots, p["tampon"].get("a", p["tampon"]["texte"]), idx)
+            frag = p["tampon"].get("a", p["tampon"]["texte"])
+            try: j = voix.trouver(mots, frag, idx)
+            except ValueError: j = voix.trouver(mots, frag, 0) if i else idx   # mot placé un plan trop tôt
             q["_tampon_t"] = mots[j]["s"]
         plans.append(q)
     for a, b in zip(plans, plans[1:]): a["_fin"] = b["_debut"]
