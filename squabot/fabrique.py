@@ -116,19 +116,45 @@ def preparer_clip(vis, cache, duree):
     if not medias: print(f"  rien à télécharger sur {vis['x']}", flush=True); return None
     f = medias[min(len(medias), int(vis.get("media", 1))) - 1]
     if f.suffix.lower() != ".mp4": return {"photo": str(f)}
-    debut = float(vis.get("debut", 0))
+    debut = vis.get("debut", "auto")
+    debut = moment_fort(str(f), duree) if debut == "auto" else float(debut)
     sortie = d / f"vertical_{f.stem}_{debut:g}_{duree:.1f}_{int(bool(vis.get('remplir')))}.mp4"
     if not sortie.exists():
         if vis.get("remplir"):
             filtre = f"[0:v]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={FPS}"
         else:
+            # image principale agrandie (≈ 1,45× la largeur de l'écran, bords rognés) sur un fond flouté de la vidéo
             filtre = (f"[0:v]split[a][b];[a]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},"
-                      f"boxblur=40:2,eq=brightness=-0.18[f];[b]scale={W}:{H}:force_original_aspect_ratio=decrease[c];"
-                      f"[f][c]overlay=(W-w)/2:(H-h)/2,fps={FPS}")
+                      f"boxblur=40:2,eq=brightness=-0.18[f];[b]scale='min({int(W * 1.45)},iw*{H}/ih)':-2,"
+                      f"crop='min(iw,{W})':'min(ih,{H})'[c];[f][c]overlay=(W-w)/2:(H-h)/2,fps={FPS}")
         subprocess.run(["ffmpeg", "-nostdin", "-loglevel", "error", "-y", "-stream_loop", "-1", "-ss", f"{debut:g}", "-i", str(f),
                         "-t", f"{duree + 0.6:.2f}", "-filter_complex", filtre, "-an", "-c:v", "libx264", "-crf", "17",
                         "-preset", "veryfast", "-pix_fmt", "yuv420p", str(sortie)], check=True)
     return {"clip": str(sortie)}
+
+
+def moment_fort(mp4, duree):
+    """Début du passage le plus agité de la vidéo (mouvement, changements d'image) : là où il se passe quelque chose."""
+    import cv2, numpy as np
+    cap = cv2.VideoCapture(mp4); fps = cap.get(cv2.CAP_PROP_FPS) or 30
+    total = cap.get(cv2.CAP_PROP_FRAME_COUNT) / fps
+    if total <= duree + 1: cap.release(); return 0
+    pas, prec, agit = max(1, int(fps / 4)), None, []
+    i = 0
+    while True:
+        ok = cap.grab()
+        if not ok: break
+        if i % pas == 0:
+            ok, fr = cap.retrieve()
+            g = cv2.resize(cv2.cvtColor(fr, cv2.COLOR_BGR2GRAY), (96, 54)).astype(np.float32)
+            agit.append(0 if prec is None else float(np.abs(g - prec).mean())); prec = g
+        i += 1
+    cap.release()
+    a = np.array(agit); n = max(1, int(duree * 4))
+    if len(a) <= n: return 0
+    somme = np.convolve(a, np.ones(n), "valid")
+    j = int(somme[: len(a) - n].argmax()) if len(a) > n else 0
+    return round(max(0, j / 4 - 0.5), 1)        # un peu avant le pic : on voit arriver l'action
 
 
 def premiere_image(mp4):
@@ -240,6 +266,8 @@ def fabriquer(dossier, planche_seule=False):
     script = v["script"].strip()
     empreinte = hashlib.md5(f"{script}{c['voix']}".encode()).hexdigest()[:10]
     wav, calage_f = dossier / "voix.wav", dossier / "mots.json"
+    sauve = dossier / "cache" / f"voix_{empreinte}.wav"           # la voix survit d'une fabrication à l'autre
+    if not wav.exists() and sauve.exists(): import shutil; shutil.copy(sauve, wav)
     if not wav.exists() or not calage_f.exists() or json.loads(calage_f.read_text()).get("empreinte") != empreinte:
         for essai in range(3):     # la voix peut dérailler sur une phrase : on la refait avec un autre tirage
             os.environ["SQUABOT_VOX_GRAINE"] = str(100 * essai)
@@ -253,6 +281,7 @@ def fabriquer(dossier, planche_seule=False):
         else:
             v["alerte"] = "voix mal prononcée par endroits : à écouter avant de poster"
         calage_f.write_text(json.dumps({"empreinte": empreinte, "mots": mots}, ensure_ascii=False))
+        sauve.parent.mkdir(exist_ok=True); import shutil; shutil.copy(wav, sauve)
     mots = json.loads(calage_f.read_text())["mots"]
     import soundfile as sf
     duree = round(sf.info(str(wav)).duration + 0.4, 2)
