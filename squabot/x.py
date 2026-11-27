@@ -215,7 +215,7 @@ def telecharger(url, dossier):
 def regarder(url):
     """« Regarde » un post avant d'écrire dessus : planche d'images minutées (1/s) + ce qui est dit dans la vidéo.
     Résultat dans data/x/vus/<id>/ : planche_<n>.jpg et vu.json. Le script doit décrire CE QU'ON VOIT, plan par plan."""
-    import cv2, numpy as np
+    import cv2
     from PIL import Image, ImageDraw
     tid = url.rstrip("/").split("/")[-1].split("?")[0]
     d = config.RACINE / "data" / "x" / "vus" / tid; d.mkdir(parents=True, exist_ok=True)
