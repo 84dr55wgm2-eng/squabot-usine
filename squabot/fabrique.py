@@ -104,6 +104,41 @@ def choisir_photo(vis, cache, deja, n=4):
         return cands[0][1], cands[0][0]
 
 
+def preparer_clip(vis, cache, duree):
+    """Vidéo (ou photo) d'un post 𝕏 : téléchargée, puis mise au format vertical 1080x1920 (fond flouté de la même
+    vidéo, image entière au centre, ou plein cadre avec « remplir »). Renvoie {"clip": mp4} ou {"photo": image}."""
+    from . import x
+    d = cache / ("x_" + vis["x"].rstrip("/").split("/")[-1].split("?")[0])
+    medias = sorted(f for f in d.glob("*") if f.suffix.lower() in (".mp4", ".jpg", ".jpeg", ".png", ".webp")) if d.exists() else []
+    if not medias:
+        try: medias = [Path(f) for f in x.telecharger(vis["x"], d)]
+        except SystemExit as e: print(" ", e, flush=True); return None
+    if not medias: print(f"  rien à télécharger sur {vis['x']}", flush=True); return None
+    f = medias[min(len(medias), int(vis.get("media", 1))) - 1]
+    if f.suffix.lower() != ".mp4": return {"photo": str(f)}
+    debut = float(vis.get("debut", 0))
+    sortie = d / f"vertical_{f.stem}_{debut:g}_{duree:.1f}_{int(bool(vis.get('remplir')))}.mp4"
+    if not sortie.exists():
+        if vis.get("remplir"):
+            filtre = f"[0:v]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={FPS}"
+        else:
+            filtre = (f"[0:v]split[a][b];[a]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},"
+                      f"boxblur=40:2,eq=brightness=-0.18[f];[b]scale={W}:{H}:force_original_aspect_ratio=decrease[c];"
+                      f"[f][c]overlay=(W-w)/2:(H-h)/2,fps={FPS}")
+        subprocess.run(["ffmpeg", "-nostdin", "-loglevel", "error", "-y", "-stream_loop", "-1", "-ss", f"{debut:g}", "-i", str(f),
+                        "-t", f"{duree + 0.6:.2f}", "-filter_complex", filtre, "-an", "-c:v", "libx264", "-crf", "17",
+                        "-preset", "veryfast", "-pix_fmt", "yuv420p", str(sortie)], check=True)
+    return {"clip": str(sortie)}
+
+
+def premiere_image(mp4):
+    import cv2, numpy as np
+    cap = cv2.VideoCapture(mp4); ok, fr = cap.read(); cap.release()
+    img = cv2.cvtColor(fr, cv2.COLOR_BGR2RGB) if ok else np.zeros((H, W, 3), np.uint8)
+    jpg = mp4[:-4] + ".jpg"; cv2.imwrite(jpg, cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+    return img, jpg
+
+
 def preparer_images(v, theme, dossier):
     """Photos tout de suite ; illustrations demandées en arrière-plan (1 toutes les 45 s, limite gratuite),
     et traitées (netteté, profondeur) au fil de leur arrivée : l'attente sert à travailler sur le reste."""
@@ -111,12 +146,26 @@ def preparer_images(v, theme, dossier):
     cache = Path(dossier) / "cache"; cache.mkdir(exist_ok=True)
     style = theme["style_visuel"]; teinte = style.get("grade", "sepia")
     assets, sources, fichiers, deja = {}, {}, {}, set()
+    clips = {}                               # clé -> mp4 vertical (vidéos réelles)
+    sans_ia = theme.get("images_ia") is False
     prets, attente = {}, {}                  # (plan, k) -> (fichier, générée, crédit) ; futur -> (plan, k, vis)
     file = ThreadPoolExecutor(max_workers=1)
     for p in v["_plans"]:
         for k, vis in enumerate(visuels(p)):
             fichier, credit = None, None
-            if vis.get("photo"):
+            if vis.get("x"):
+                auteur = vis["x"].split("x.com/")[-1].split("/")[0]
+                r = preparer_clip(vis, cache, p["_fin"] - p["_debut"])
+                if r and r.get("clip"):
+                    import numpy as np
+                    cle = f"{p['_id']}.{k}"; img, jpg = premiere_image(r["clip"])
+                    clips[cle] = (r["clip"], f"@{auteur}")
+                    assets[cle] = (img, np.zeros(img.shape[:2], np.float32), 0.5, 0.45)
+                    sources[cle] = f"𝕏 @{auteur} : {vis['x']}"; fichiers.setdefault(p["_id"], jpg)
+                    continue
+                if r and r.get("photo"):
+                    fichier, credit = r["photo"], f"𝕏 @{auteur} : {vis['x']}"
+            if fichier is None and vis.get("photo"):
                 fichier = images.photo_commons(vis["photo"], cache)
                 if fichier: credit = f"Wikimedia Commons : {vis['photo']}"; deja.add(vis["photo"])
             if fichier is None and vis.get("recherche"):
@@ -124,7 +173,7 @@ def preparer_images(v, theme, dossier):
                 if fichier: credit = f"Wikimedia Commons : {nom}"; deja.add(nom)
             if fichier:
                 prets[(p["_id"], k)] = (fichier, False, credit, vis)
-            elif vis.get("prompt"):
+            elif vis.get("prompt") and not sans_ia:
                 f = file.submit(images.illustration, vis["prompt"], style["prompt"], cache, vis.get("graine", p.get("graine", 1)))
                 attente[f] = (p["_id"], k, vis)
 
@@ -143,7 +192,7 @@ def preparer_images(v, theme, dossier):
     file.shutdown()
     for p in v["_plans"]:
         p["_cles"] = sorted((c for c in assets if c.split(".")[0] == str(p["_id"])), key=lambda c: int(c.split(".")[1]))
-    return assets, sources, fichiers
+    return assets, sources, fichiers, clips
 
 
 CAMS = ["avance", "droite", "recule", "gauche", "monte"]
@@ -209,9 +258,9 @@ def fabriquer(dossier, planche_seule=False):
     duree = round(sf.info(str(wav)).duration + 0.4, 2)
     v["_plans"] = resoudre_plans(v, mots, duree)
     print("Images…", flush=True)
-    assets, sources, fichiers = preparer_images(v, th, dossier)
+    assets, sources, fichiers, clips = preparer_images(v, th, dossier)
     decouper(v["_plans"], th.get("densite", 2.2))
-    r = Rendu(v, mots, assets, th, duree)
+    r = Rendu(v, mots, assets, th, duree, clips)
     r.planche(dossier / "planche.jpg")
     if planche_seule: return
     print("Son…", flush=True)

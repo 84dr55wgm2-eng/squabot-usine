@@ -33,7 +33,8 @@ def ajuste(s, nom, taille, largeur=940):
 
 
 class Rendu:
-    def __init__(self, video, mots, assets, theme, duree):
+    def __init__(self, video, mots, assets, theme, duree, clips=None):
+        self.clips, self.lecteurs = clips or {}, {}
         self.v, self.mots, self.assets, self.duree = video, mots, assets, duree
         c = theme["style_visuel"]["couleurs"]
         self.FOND, self.PAPIER, self.ACCENT, self.OR = (hexa(c[k]) for k in ("fond", "papier", "accent", "or"))
@@ -95,9 +96,32 @@ class Rendu:
             if sp["debut"] <= t < sp["fin"]: return sp
         return p["_sous"][-1] if p.get("_sous") else None
 
+    def image_clip(self, cle, dt):
+        """Image de la vidéo réelle à dt secondes du début du plan (lecture en avant, réouverture si on recule)."""
+        import cv2
+        n = max(0, int(dt * FPS))
+        lec = self.lecteurs.get(cle)
+        if lec is None or n < lec[1] - 1:
+            if lec: lec[0].release()
+            lec = self.lecteurs[cle] = [cv2.VideoCapture(self.clips[cle][0]), 0, None]
+        cap = lec[0]
+        while lec[1] <= n:
+            ok, fr = cap.read()
+            if not ok: break
+            lec[2] = fr; lec[1] += 1
+        if lec[2] is None: return self.assets[cle][0]
+        return cv2.cvtColor(lec[2], cv2.COLOR_BGR2RGB)
+
     def fond_image(self, im, p, t):
         """Visuel du sous-plan en cours, caméra 2.5D, ambiance. Renvoie False s'il n'y a rien à montrer."""
         sp = self.sous_plan(p, t)
+        if sp is not None and sp["cle"] in self.clips:      # vraie vidéo : lue telle quelle, source affichée
+            im.paste(Image.fromarray(self.image_clip(sp["cle"], t - p["_debut"])))
+            d = ImageDraw.Draw(im); f = police("noir", 40); s = self.clips[sp["cle"]][1] + " sur X"
+            x1 = 60 + f.getlength(s) + 44
+            d.rounded_rectangle((60, 120, x1, 186), radius=33, fill=(0, 0, 0))
+            texte(d, (82, 153), s, f, (255, 255, 255), 0, ancre="lm")
+            return True
         if sp is None or sp["cle"] not in self.assets:
             return self.fond_flou(im, p, t)
         img, dep, fx, fy = self.assets[sp["cle"]]
