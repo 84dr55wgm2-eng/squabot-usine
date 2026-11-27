@@ -1,0 +1,52 @@
+# Compilations longues YouTube, chaque dimanche.
+name: Compilations longues
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 9 * * 0"
+permissions:
+  contents: write
+  actions: write
+jobs:
+  compiler:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      SQUABOT_DONNEES: donnees
+      SQUABOT_DEPOT_DONNEES: 84dr55wgm2-eng/squabot
+    steps:
+      - uses: actions/checkout@v4
+      - name: Données privées
+        uses: actions/checkout@v4
+        with:
+          repository: 84dr55wgm2-eng/squabot
+          token: ${{ secrets.SQUABOT_TOKEN }}
+          path: donnees
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.13", cache: pip}
+      - name: Outils
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q ffmpeg espeak-ng
+          pip install -r requirements.txt
+      - name: Compiler
+        env:
+          GH_TOKEN: ${{ secrets.SQUABOT_TOKEN }}
+          GH_REPO: 84dr55wgm2-eng/squabot
+        run: |
+          printf 'data/compilations/*/video.mp4\ndata/compilations/*/travail/\ndata/videos/*/video.mp4\n' >> donnees/.git/info/exclude
+          python -m squabot compilations 8
+          for d in donnees/data/compilations/*/; do
+            id=$(basename "$d"); [ -f "$d/video.mp4" ] || continue
+            gh release view "$id" >/dev/null 2>&1 && continue
+            gh release create "$id" --title "$id" --notes "Compilation longue YouTube" --prerelease "$d/video.mp4"
+          done
+          python -m squabot index
+      - name: Enregistrer dans les données privées
+        run: |
+          cd donnees
+          git config user.name squabot && git config user.email squabot@users.noreply.github.com
+          git add -A data tableau comptes 2>/dev/null || git add -A data
+          git diff --cached --quiet && exit 0
+          git commit -m "Compilations [skip ci]"
+          for i in 1 2 3 4; do git pull --rebase -X theirs origin main && git push && exit 0; sleep $((i * 5)); done
+          exit 1

@@ -1,0 +1,52 @@
+# Brancher une chaîne YouTube depuis le téléphone : Actions → ce workflow → « Run workflow » → identifiant du compte.
+# Le code à entrer sur google.com/device s'affiche dans le résumé du lancement.
+name: Brancher une chaîne YouTube
+on:
+  workflow_dispatch:
+    inputs:
+      compte:
+        description: "Identifiant du compte (ex. histoire-fr), visible dans l'appli Squabot"
+        required: true
+        type: string
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: brancher-${{ inputs.compte }}
+jobs:
+  brancher:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      SQUABOT_CLE: ${{ secrets.SQUABOT_CLE }}
+      SQUABOT_DONNEES: donnees
+      SQUABOT_DEPOT_DONNEES: 84dr55wgm2-eng/squabot
+    steps:
+      - uses: actions/checkout@v4
+      - name: Données privées
+        uses: actions/checkout@v4
+        with:
+          repository: 84dr55wgm2-eng/squabot
+          token: ${{ secrets.SQUABOT_TOKEN }}
+          path: donnees
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.13", cache: pip}
+      - name: Outils
+        run: |
+          pip install PyYAML==6.0.3 cryptography==50.0.1
+      - name: Code à entrer sur google.com/device
+        id: code
+        run: python -m squabot.brancher_youtube debut "${{ inputs.compte }}"
+      - name: En attente de ton accord sur Google
+        run: python -m squabot.brancher_youtube attendre "${{ inputs.compte }}" "${{ steps.code.outputs.device_code }}" "${{ steps.code.outputs.intervalle }}" "${{ steps.code.outputs.expire }}"
+      - name: Enregistrer dans les données privées
+        run: |
+          cd donnees
+          git config user.name squabot && git config user.email squabot@users.noreply.github.com
+          git add -A data tableau comptes 2>/dev/null || git add -A data
+          git diff --cached --quiet && exit 0
+          git commit -m "Chaîne YouTube branchée [skip ci]"
+          for i in 1 2 3 4; do git pull --rebase -X theirs origin main && git push && exit 0; sleep $((i * 5)); done
+          exit 1

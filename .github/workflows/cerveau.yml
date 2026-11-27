@@ -1,0 +1,67 @@
+# Tournée de nuit : Claude (abonnement) choisit les sujets, écrit les vidéos, relit celles d'hier.
+# Inactif tant que le secret CLAUDE_CODE_OAUTH_TOKEN n'existe pas (créé par « claude setup-token »).
+name: Cerveau (tournée de nuit)
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 2 * * *"
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: cerveau
+jobs:
+  tournee:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      SQUABOT_DONNEES: donnees
+    steps:
+      - name: Jeton présent ?
+        id: jeton
+        env: {J: "${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}"}
+        run: |
+          if [ -z "$J" ]; then echo "Pas de jeton Claude : tournée sautée."; echo "ok=non" >> $GITHUB_OUTPUT; else echo "ok=oui" >> $GITHUB_OUTPUT; fi
+      - uses: actions/checkout@v4
+        if: steps.jeton.outputs.ok == 'oui'
+      - name: Données privées
+        if: steps.jeton.outputs.ok == 'oui'
+        uses: actions/checkout@v4
+        with:
+          repository: 84dr55wgm2-eng/squabot
+          token: ${{ secrets.SQUABOT_TOKEN }}
+          path: donnees
+      - uses: actions/setup-python@v5
+        if: steps.jeton.outputs.ok == 'oui'
+        with: {python-version: "3.13", cache: pip}
+      - if: steps.jeton.outputs.ok == 'oui'
+        run: pip install PyYAML==6.0.3
+      - name: Réglages
+        if: steps.jeton.outputs.ok == 'oui'
+        id: reglages
+        run: |
+          python -c "import yaml;c=yaml.safe_load(open('donnees/cerveau.yaml'));print(f\"modele={c['modele']}\");print(f\"tours={c['tours_max']}\")" >> $GITHUB_OUTPUT
+      - name: Tournée de Claude
+        if: steps.jeton.outputs.ok == 'oui'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Nous sommes le ${{ github.run_started_at }}. Les données privées (comptes/, themes/, data/, cerveau.yaml…)
+            sont dans le dossier donnees/ ; le moteur est ici. Suis exactement les consignes de docs/tournee.md.
+          claude_args: >-
+            --model ${{ steps.reglages.outputs.modele }}
+            --max-turns ${{ steps.reglages.outputs.tours }}
+            --allowedTools "Read,Write,Edit,Glob,Grep,WebFetch,WebSearch,Bash(python -m squabot verifier),Bash(ls:*),Bash(date:*)"
+      - name: Enregistrer et lancer la fabrication
+        if: steps.jeton.outputs.ok == 'oui'
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          cd donnees
+          git config user.name squabot && git config user.email squabot@users.noreply.github.com
+          git add -A data
+          if ! git diff --cached --quiet; then
+            git commit -m "Tournée de nuit : vidéos écrites [skip ci]"
+            for i in 1 2 3 4; do git pull --rebase -X theirs origin main && git push && break; sleep $((i * 5)); done
+          fi
+          cd .. && gh workflow run fabriquer.yml

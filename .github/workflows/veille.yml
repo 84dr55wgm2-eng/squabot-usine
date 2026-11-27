@@ -1,0 +1,41 @@
+# Veille du monde : sujets frais par compte, toutes les 6 heures.
+name: Veille du monde
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "41 */6 * * *"
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: veille
+jobs:
+  veille:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SQUABOT_DONNEES: donnees
+      SQUABOT_DEPOT_DONNEES: 84dr55wgm2-eng/squabot
+    steps:
+      - uses: actions/checkout@v4
+      - name: Données privées
+        uses: actions/checkout@v4
+        with:
+          repository: 84dr55wgm2-eng/squabot
+          token: ${{ secrets.SQUABOT_TOKEN }}
+          path: donnees
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.13", cache: pip}
+      - name: Outils
+        run: |
+          pip install PyYAML==6.0.3 yt-dlp==2026.10.26
+      - run: python -m squabot veille
+      - name: Enregistrer dans les données privées
+        run: |
+          cd donnees
+          git config user.name squabot && git config user.email squabot@users.noreply.github.com
+          git add -A data tableau comptes 2>/dev/null || git add -A data
+          git diff --cached --quiet && exit 0
+          git commit -m "Veille du monde [skip ci]"
+          for i in 1 2 3 4; do git pull --rebase -X theirs origin main && git push && exit 0; sleep $((i * 5)); done
+          exit 1

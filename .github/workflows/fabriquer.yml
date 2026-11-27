@@ -1,0 +1,79 @@
+# Fabrique les vidéos « a_fabriquer » des données privées. Toutes les 30 min, ou relancée par la tournée.
+name: Fabriquer les vidéos
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *"
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: fabrication
+  cancel-in-progress: false
+jobs:
+  fabriquer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    env:
+      SQUABOT_DONNEES: donnees
+      SQUABOT_DEPOT_DONNEES: 84dr55wgm2-eng/squabot
+    steps:
+      - uses: actions/checkout@v4
+      - name: Données privées
+        uses: actions/checkout@v4
+        with:
+          repository: 84dr55wgm2-eng/squabot
+          token: ${{ secrets.SQUABOT_TOKEN }}
+          path: donnees
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.13", cache: pip}
+      - name: Outils
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q ffmpeg espeak-ng
+          pip install -r requirements.txt
+      - name: Modèles en cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/squabot
+            ~/.cache/huggingface
+          key: modeles-v2
+      - name: Images déjà récupérées
+        uses: actions/cache@v4
+        with:
+          path: donnees/data/videos/*/cache
+          key: images-${{ github.run_id }}
+          restore-keys: images-
+      - name: Fabrication (8 vidéos max)
+        env:
+          GH_TOKEN: ${{ secrets.SQUABOT_TOKEN }}
+          GH_REPO: 84dr55wgm2-eng/squabot
+        run: |
+          python -m squabot a-fabriquer > tout.txt
+          head -n 8 tout.txt > liste.txt
+          while read -r dossier; do
+            [ -z "$dossier" ] && continue
+            id=$(basename "$dossier")
+            python -m squabot fabriquer "$dossier"
+            ffmpeg -nostdin -loglevel error -y -i "$dossier/video.mp4" -vf scale=720:1280 -c:v libx264 -crf 26 -preset slow \
+              -c:a aac -b:a 128k -movflags +faststart "$dossier/apercu.mp4"
+            gh release create "$id" --title "$id" --notes "Vidéo fabriquée par squabot" --prerelease \
+              "$dossier/video.mp4" "$dossier/miniature.jpg" 2>/dev/null \
+              || gh release upload "$id" "$dossier/video.mp4" "$dossier/miniature.jpg" --clobber
+          done < liste.txt
+          echo "reste=$(( $(wc -l < tout.txt) - $(wc -l < liste.txt) ))" >> "$GITHUB_ENV"
+          printf 'data/videos/*/video.mp4\ndata/videos/*/*.wav\ndata/videos/*/cache/\n' >> donnees/.git/info/exclude
+          python -m squabot index
+      - name: Enregistrer dans les données privées
+        run: |
+          cd donnees
+          git config user.name squabot && git config user.email squabot@users.noreply.github.com
+          git add -A data tableau comptes 2>/dev/null || git add -A data
+          git diff --cached --quiet && exit 0
+          git commit -m "Vidéos fabriquées [skip ci]"
+          for i in 1 2 3 4; do git pull --rebase -X theirs origin main && git push && exit 0; sleep $((i * 5)); done
+          exit 1
+      - name: Relancer s'il reste des vidéos
+        if: env.reste != '0' && env.reste != ''
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: gh workflow run fabriquer.yml
