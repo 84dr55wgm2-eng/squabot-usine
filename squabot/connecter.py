@@ -13,11 +13,10 @@ import base64, http.server, json, secrets, subprocess, sys, threading, urllib.pa
 from pathlib import Path
 from . import config
 
-DEPOT = "84dr55wgm2-eng/squabot"
+DEPOT = "84dr55wgm2-eng/squabot-usine"
 PAGES = {"tiktok": "https://www.tiktok.com/login", "instagram": "https://www.instagram.com/accounts/login/",
          "facebook": "https://www.facebook.com/login", "x": "https://x.com/i/flow/login"}
-PORTEES_YOUTUBE = ["https://www.googleapis.com/auth/youtube.upload",        # publier
-                   "https://www.googleapis.com/auth/youtube.force-ssl",     # lire et répondre aux commentaires
+PORTEES_YOUTUBE = ["https://www.googleapis.com/auth/youtube",               # publier, commentaires
                    "https://www.googleapis.com/auth/yt-analytics.readonly", # vues et rétention
                    "https://www.googleapis.com/auth/yt-analytics-monetary.readonly"]  # revenus
 
@@ -31,34 +30,44 @@ def ranger(nom, valeur):
     print(f"Connexion rangée dans le secret GitHub {nom}. Le tableau de bord l'affichera au prochain relevé.")
 
 
-def youtube(compte, client_json="client_secret.json"):
-    """OAuth Google « application de bureau » : le navigateur s'ouvre, tu choisis la chaîne, c'est fini."""
-    c = json.loads(Path(client_json).read_text())
-    c = c.get("installed") or c.get("web")
+def youtube(compte):
+    """Connexion Google « application de bureau » : le navigateur s'ouvre, tu choisis la chaîne, c'est fini.
+    Donne tout : publication, commentaires, statistiques (rétention) et revenus. Le client vient de
+    GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET (type « Application de bureau »), l'autorisation part chiffrée
+    dans le coffre des données privées (SQUABOT_CLE)."""
+    import os
+    from .brancher_youtube import enregistrer
+    cid, sec = os.environ.get("GOOGLE_CLIENT_ID"), os.environ.get("GOOGLE_CLIENT_SECRET")
+    if not cid or not sec: raise SystemExit("GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET manquants (lance la préparation).")
     code, etat = {}, secrets.token_urlsafe(16)
 
     class Retour(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
             q = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
-            if q.get("state", [""])[0] == etat: code["v"] = q.get("code", [""])[0]
+            if q.get("state", [""])[0] == etat: code["v"] = q.get("code", [""])[0]; code["err"] = q.get("error", [""])[0]
             self.send_response(200); self.send_header("Content-Type", "text/html; charset=utf-8"); self.end_headers()
-            self.wfile.write("<h2>C'est connecté. Tu peux fermer cette page.</h2>".encode())
+            self.wfile.write("<h2 style='font-family:-apple-system'>C'est relié. Tu peux fermer cette page.</h2>".encode())
         def log_message(self, *a): pass
 
     srv = http.server.HTTPServer(("127.0.0.1", 0), Retour)
     retour = f"http://127.0.0.1:{srv.server_port}"
     url = "https://accounts.google.com/o/oauth2/v2/auth?" + urllib.parse.urlencode({
-        "client_id": c["client_id"], "redirect_uri": retour, "response_type": "code", "scope": " ".join(PORTEES_YOUTUBE),
-        "access_type": "offline", "prompt": "consent", "state": etat})
-    threading.Thread(target=srv.handle_request, daemon=True).start()
-    print("Choisis la chaîne du compte", compte, "dans la fenêtre qui s'ouvre…"); webbrowser.open(url)
-    while "v" not in code: threading.Event().wait(0.5)
+        "client_id": cid, "redirect_uri": retour, "response_type": "code", "scope": " ".join(PORTEES_YOUTUBE),
+        "access_type": "offline", "prompt": "consent select_account", "state": etat})
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    nom = config.comptes()[compte]["nom"]
+    print(f"\nDans la fenêtre qui s'ouvre : choisis la chaîne « {nom} », puis autorise.")
+    print("Si Google affiche « application non validée » : Paramètres avancés → Continuer.\n")
+    webbrowser.open(url)
+    while not code.get("v") and not code.get("err"): threading.Event().wait(0.5)
+    srv.shutdown()
+    if code.get("err"): raise SystemExit(f"Autorisation refusée : {code['err']}")
     jetons = json.loads(urllib.request.urlopen("https://oauth2.googleapis.com/token", urllib.parse.urlencode({
-        "code": code["v"], "client_id": c["client_id"], "client_secret": c["client_secret"],
+        "code": code["v"], "client_id": cid, "client_secret": sec,
         "redirect_uri": retour, "grant_type": "authorization_code"}).encode()).read())
-    if "refresh_token" not in jetons: raise SystemExit("Google n'a pas donné de jeton durable : recommence.")
-    ranger(nom_secret("youtube", compte), json.dumps({"client_id": c["client_id"], "client_secret": c["client_secret"],
-                                                       "refresh_token": jetons["refresh_token"]}))
+    if "refresh_token" not in jetons: raise SystemExit("Google n'a pas donné d'autorisation durable : recommence.")
+    sn = enregistrer(compte, jetons)
+    print(f"Relié : chaîne « {sn.get('title', '?')} » ({sn.get('customUrl', '')}) → {compte}")
 
 
 def navigateur(reseau, compte):
@@ -80,6 +89,6 @@ def main(a):
     if compte not in config.comptes(): raise SystemExit(f"Compte inconnu : {compte}")
     if reseau not in (config.comptes()[compte].get("publier_sur") or {}):
         raise SystemExit(f"Le compte {compte} ne publie pas sur {reseau} (voir comptes/{compte}.yaml).")
-    if reseau == "youtube": youtube(compte, a[2] if len(a) > 2 else "client_secret.json")
+    if reseau == "youtube": youtube(compte)
     elif reseau in PAGES: navigateur(reseau, compte)
     else: raise SystemExit(f"Réseau non géré : {reseau}")

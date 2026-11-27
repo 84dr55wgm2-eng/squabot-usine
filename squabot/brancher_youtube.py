@@ -81,22 +81,28 @@ def attendre(compte, device_code, intervalle=5, expire=1800):
         if r.get("error") == "slow_down": intervalle += 5; continue
         if r.get("error"): raise SystemExit(f"Branchement annulé : {r.get('error')} {r.get('error_description', '')}")
         if "refresh_token" not in r: raise SystemExit("Google n'a pas donné d'autorisation durable : relance le branchement.")
-        req = urllib.request.Request("https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true",
-                                     headers={"Authorization": f"Bearer {r['access_token']}"})
-        items = json.load(urllib.request.urlopen(req, timeout=30)).get("items", [])
-        chaine = items[0] if items else {}
-        sn = chaine.get("snippet", {})
-        coffre.ranger("youtube", compte, {"refresh_token": r["refresh_token"], "portees": r.get("scope", ""),
-                                          "chaine_id": chaine.get("id")})
-        etat_f = coffre.DOSSIER / "etat.json"
-        etat = json.loads(etat_f.read_text()) if etat_f.exists() else {}
-        etat.setdefault(compte, {})["youtube"] = {"chaine": sn.get("title"), "identifiant": sn.get("customUrl"),
-                                                  "chaine_id": chaine.get("id"), "branche_le": time.strftime("%Y-%m-%d %H:%M"),
-                                                  "statistiques": "yt-analytics" in r.get("scope", "")}
-        etat_f.write_text(json.dumps(etat, ensure_ascii=False, indent=1))
+        sn = enregistrer(compte, r)
         _resume(f"### Branché ✅\n\nChaîne **{sn.get('title', '?')}** ({sn.get('customUrl', '')}) reliée au compte `{compte}`.")
         return
     raise SystemExit("Le code a expiré sans être utilisé : relance le branchement.")
+
+
+def enregistrer(compte, r):
+    """Range l'autorisation Google (réponse du jeton) chiffrée dans le coffre et note la chaîne reliée. Renvoie son snippet."""
+    req = urllib.request.Request("https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true",
+                                 headers={"Authorization": f"Bearer {r['access_token']}"})
+    items = json.load(urllib.request.urlopen(req, timeout=30)).get("items", [])
+    chaine = items[0] if items else {}
+    sn = chaine.get("snippet", {})
+    coffre.ranger("youtube", compte, {"refresh_token": r["refresh_token"], "portees": r.get("scope", ""),
+                                      "chaine_id": chaine.get("id")})
+    etat_f = coffre.DOSSIER / "etat.json"
+    etat = json.loads(etat_f.read_text()) if etat_f.exists() else {}
+    etat.setdefault(compte, {})["youtube"] = {"chaine": sn.get("title"), "identifiant": sn.get("customUrl"),
+                                              "chaine_id": chaine.get("id"), "branche_le": time.strftime("%Y-%m-%d %H:%M"),
+                                              "statistiques": "yt-analytics" in r.get("scope", "")}
+    etat_f.write_text(json.dumps(etat, ensure_ascii=False, indent=1))
+    return sn
 
 
 if __name__ == "__main__":
