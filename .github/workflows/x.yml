@@ -30,13 +30,6 @@ jobs:
       - run: pip install -q PyYAML gallery-dl==1.32.21 fastembed==0.9.1
       - name: Lire les comptes
         run: python -m squabot x suivre
-      - name: Essai de téléchargement (meilleur post avec vidéo)
-        run: |
-          u=$(python -c "import json,glob;p=json.load(open(sorted(glob.glob('donnees/data/x/*.json'))[-1]));v=[x for x in p if any(m['type']=='video' for m in x['medias'])];print(v[0]['url'] if v else '')")
-          [ -z "$u" ] && { echo "aucune vidéo"; exit 0; }
-          python -m squabot x telecharger "$u" /tmp/essai >/dev/null
-          ls -la /tmp/essai | tail -n +2 | awk '{print $5, $9}'
-          python -c "import json,glob;p=json.load(open(sorted(glob.glob('donnees/data/x/*.json'))[-1]));[print(x['buzz'],x.get('theme'),x['compte'],len(x['medias']),x['texte'][:70].replace(chr(10),' ')) for x in p[:12]]"
       - name: Enregistrer dans les données privées
         run: |
           cd donnees
