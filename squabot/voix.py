@@ -1,6 +1,7 @@
 """Voix de synthèse (Kokoro, gratuite, locale) puis calage mot à mot (Whisper) sur le texte du script."""
 import difflib, re, unicodedata
 import numpy as np, soundfile as sf
+from pathlib import Path
 from . import modeles
 
 PAUSE = 0.25
@@ -22,17 +23,32 @@ def synthese_edge(texte, sortie, voix="fr-FR-HenriNeural", vitesse=1.05):
 KOKORO = {"fr": ("ff_siwis", "fr-fr"), "en": ("af_heart", "en-us"), "es": ("ef_dora", "es")}
 
 
-def synthese_auto(texte, sortie, reglage, langue="fr"):
-    """Voix choisie pour le compte, puis silences inutiles raccourcis."""
-    duree, moteur = _synthese(texte, sortie, reglage, langue)
+def synthese_auto(texte, sortie, reglage, langue="fr", registre="jeune", accent=None):
+    """Voix choisie pour le compte, sur le texte « à dire » (oral.py), puis silences inutiles raccourcis."""
+    from .oral import a_dire
+    texte = a_dire(texte, langue, registre, accent)
+    duree, moteur = _synthese(texte, sortie, reglage, langue, registre)
     from .oral import resserrer
     import shutil
     resserrer(sortie, str(sortie) + ".tmp.wav"); shutil.move(str(sortie) + ".tmp.wav", sortie)
     return sf.info(str(sortie)).duration, moteur
 
 
-def _synthese(texte, sortie, reglage, langue="fr"):
-    """Si c'est Edge et que le service refuse, repli sur Kokoro (jamais d'arrêt)."""
+def _synthese(texte, sortie, reglage, langue="fr", registre="jeune"):
+    """VoxCPM2 (Python à part) puis, en secours, Edge ; si Edge refuse, Kokoro (jamais d'arrêt)."""
+    if reglage.get("modele") == "voxcpm":
+        import os, subprocess, tempfile
+        py = os.environ.get("SQUABOT_VOX_PYTHON")
+        if py and Path(py).exists():
+            f = tempfile.mktemp(suffix=".txt"); Path(f).write_text(texte)
+            r = subprocess.run([py, "-m", "squabot.vox", f, str(sortie), reglage.get("profil", "jeune-homme-energique"), registre],
+                               cwd=Path(__file__).resolve().parent.parent)
+            if r.returncode == 0 and Path(sortie).exists():
+                return sf.info(str(sortie)).duration, "voxcpm"
+            print("  VoxCPM2 indisponible, repli sur Edge", flush=True)
+        else:
+            print("  VoxCPM2 non installé ici, repli sur Edge", flush=True)
+        reglage = {"modele": "edge", "voix": reglage.get("secours", "fr-FR-RemyMultilingualNeural"), "vitesse": reglage.get("vitesse", 1.06)}
     if reglage.get("modele") == "edge":
         try:
             return synthese_edge(texte, sortie, reglage.get("voix", "fr-FR-HenriNeural"), reglage.get("vitesse", 1.05)), "edge"

@@ -37,11 +37,29 @@ jobs:
           token: ${{ secrets.SQUABOT_TOKEN }}
           path: donnees
       - uses: actions/setup-python@v5
-        with: {python-version: "3.13", cache: pip}
+        with:
+          python-version: |
+            3.12
+            3.13
+          cache: pip
       - name: Outils
         run: |
           sudo apt-get update -q && sudo apt-get install -y -q ffmpeg espeak-ng
           pip install -r requirements.txt
+      - name: Voix VoxCPM2 en cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/vox
+          key: vox-${{ hashFiles('squabot/vox.py') }}-v1
+          restore-keys: vox-
+      - name: Voix VoxCPM2 (Python 3.12 à part)
+        run: |
+          if [ ! -x /tmp/vox/bin/python ]; then
+            python3.12 -m venv /tmp/vox
+            /tmp/vox/bin/pip install -q torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+            /tmp/vox/bin/pip install -q "voxcpm @ git+https://github.com/OpenBMB/VoxCPM" soundfile numpy
+          fi
+          echo "SQUABOT_VOX_PYTHON=/tmp/vox/bin/python" >> "$GITHUB_ENV"
       - name: Modèles en cache
         uses: actions/cache@v4
         with:

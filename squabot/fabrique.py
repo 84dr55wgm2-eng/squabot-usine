@@ -190,7 +190,7 @@ def fabriquer(dossier, planche_seule=False):
     wav, calage_f = dossier / "voix.wav", dossier / "mots.json"
     if not wav.exists() or not calage_f.exists() or json.loads(calage_f.read_text()).get("empreinte") != empreinte:
         print("Voix…", flush=True)
-        _, utilisee = voix.synthese_auto(script, wav, c["voix"], c.get("langue", "fr"))
+        _, utilisee = voix.synthese_auto(script, wav, c["voix"], c.get("langue", "fr"), c.get("registre", "jeune"), c.get("accent"))
         v["voix_utilisee"] = utilisee
         print("Calage mot à mot…", flush=True)
         calage_f.write_text(json.dumps({"empreinte": empreinte, "mots": voix.calage(wav, script, langue=c.get("langue", "fr"))}, ensure_ascii=False))
