@@ -29,6 +29,22 @@ def controler(v, autres=()):
         if n < lo: bloq.append(f"script trop court : {n} mots (minimum {lo}, soit ~{lo / MOTS_SECONDE:.0f} s)")
         if n > hi + 25: bloq.append(f"script trop long : {n} mots (maximum {hi})")
         elif n > hi: cons.append(f"script un peu long : {n} mots (cible {fmt['mots'][0]}-{hi})")
+    if script and v.get("plans"):            # chaque plan et chaque tampon doivent se retrouver dans le script
+        from .voix import _norm
+        mots_s = [_norm(m) for m in script.split()]
+        def present(frag, depuis=0):
+            cible = [_norm(x) for x in frag.split() if _norm(x)]
+            if not cible: return depuis
+            return next((k for k in range(depuis, len(mots_s)) if mots_s[k:k + len(cible)] == cible
+                         or (len(cible[0]) > 3 and mots_s[k].endswith(cible[0]))), None)
+        pos = 0
+        for k, p in enumerate(v["plans"][1:], 2):
+            j = present(p.get("a", ""), pos)
+            if j is None: bloq.append(f"plan {k} : « {p.get('a')} » introuvable dans le script (dans l'ordre)")
+            else: pos = j
+            t = p.get("tampon")
+            if t and present(t.get("a", t.get("texte", ""))) is None:
+                bloq.append(f"plan {k} : tampon « {t.get('a', t.get('texte'))} » absent du script")
     if lignes:
         premiere = lignes[0]
         if len(premiere.split()) > 12: cons.append(f"accroche trop longue ({len(premiere.split())} mots, 12 max) : « {premiere[:60]} »")

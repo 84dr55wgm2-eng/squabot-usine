@@ -122,6 +122,6 @@ def trouver(mots, fragment, apres=0):
     n = [_norm(m["w"]) for m in mots]
     for i in range(apres, len(n)):
         if n[i:i + len(cible)] == cible: return i
-    for i in range(apres, len(n)):          # tolérance : premier mot seulement
-        if n[i] == cible[0]: return i
+    for i in range(apres, len(n)):          # tolérance : premier mot seulement (« d'enlever » contient « enlever »)
+        if n[i] == cible[0] or (len(cible[0]) > 3 and n[i].endswith(cible[0])): return i
     raise ValueError(f"« {fragment} » introuvable dans le script après le mot {apres}")

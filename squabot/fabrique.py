@@ -36,13 +36,18 @@ def resoudre_plans(v, mots, duree):
     """Place chaque plan sur la voix à partir des mots où il commence."""
     pos, plans = 0, []
     for i, p in enumerate(v["plans"]):
-        idx = voix.trouver(mots, p["a"], pos) if i else 0
+        try: idx = voix.trouver(mots, p["a"], pos) if i else 0
+        except ValueError:                   # ancre introuvable : le plan démarre un peu après le précédent
+            print(f"  plan {i + 1} : « {p['a']} » introuvable, placé à la suite", flush=True)
+            idx = min(len(mots) - 1, pos + 3)
         pos = idx
         q = dict(p, _id=i, _idx=idx, _debut=0.0 if i == 0 else mots[idx]["s"])
         if p.get("tampon"):
             frag = p["tampon"].get("a", p["tampon"]["texte"])
             try: j = voix.trouver(mots, frag, idx)
-            except ValueError: j = voix.trouver(mots, frag, 0) if i else idx   # mot placé un plan trop tôt
+            except ValueError:
+                try: j = voix.trouver(mots, frag, 0)      # mot placé un plan trop tôt
+                except ValueError: j = idx; print(f"  tampon « {frag} » introuvable : au début du plan", flush=True)
             q["_tampon_t"] = mots[j]["s"]
         plans.append(q)
     for a, b in zip(plans, plans[1:]): a["_fin"] = b["_debut"]
