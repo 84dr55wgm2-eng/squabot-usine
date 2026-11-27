@@ -98,13 +98,21 @@ def calage(wav, texte, modele="small", langue="fr"):
     out, pos = [], 0
     for w in script:
         n = len(_norm(w)); idx = [corr[i] for i in range(pos, pos + n) if i in corr]
-        out.append({"w": w, "s": ct[idx[0]] if idx else None, "e": ct[idx[-1]] if idx else None}); pos += n
+        out.append({"w": w, "s": ct[idx[0]] if idx else None, "e": ct[idx[-1]] if idx else None, "x": not idx}); pos += n
     for i, o in enumerate(out):
         if o["s"] is None: o["s"] = out[i - 1]["e"] if i else 0.0
         if o["e"] is None: o["e"] = o["s"] + 0.2
     for i in range(len(out) - 1):
         out[i]["e"] = max(out[i]["e"], min(out[i + 1]["s"], out[i]["e"] + 0.15))
-    return [{"w": o["w"], "s": round(o["s"], 3), "e": round(o["e"], 3)} for o in out]
+    return [dict({"w": o["w"], "s": round(o["s"], 3), "e": round(o["e"], 3)}, **({"x": 1} if o["x"] else {})) for o in out]
+
+
+def mal_dit(mots, seuil=5):
+    """Plus longue suite de mots du script introuvables dans la voix (voix qui déraille)."""
+    m = n = 0
+    for o in mots:
+        n = n + 1 if o.get("x") else 0; m = max(m, n)
+    return m >= seuil
 
 
 def trouver(mots, fragment, apres=0):

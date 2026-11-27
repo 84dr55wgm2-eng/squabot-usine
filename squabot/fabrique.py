@@ -1,4 +1,5 @@
 """Fabrication d'une vidéo à partir de son fichier video.json : voix, calage, images, rendu, son, miniature."""
+import os
 import hashlib, json, subprocess, time
 from pathlib import Path
 from . import config, voix, images, son, miniature
@@ -191,11 +192,18 @@ def fabriquer(dossier, planche_seule=False):
     empreinte = hashlib.md5(f"{script}{c['voix']}".encode()).hexdigest()[:10]
     wav, calage_f = dossier / "voix.wav", dossier / "mots.json"
     if not wav.exists() or not calage_f.exists() or json.loads(calage_f.read_text()).get("empreinte") != empreinte:
-        print("Voix…", flush=True)
-        _, utilisee = voix.synthese_auto(script, wav, c["voix"], c.get("langue", "fr"), c.get("registre", "jeune"), c.get("accent"))
-        v["voix_utilisee"] = utilisee
-        print("Calage mot à mot…", flush=True)
-        calage_f.write_text(json.dumps({"empreinte": empreinte, "mots": voix.calage(wav, script, langue=c.get("langue", "fr"))}, ensure_ascii=False))
+        for essai in range(3):     # la voix peut dérailler sur une phrase : on la refait avec un autre tirage
+            os.environ["SQUABOT_VOX_GRAINE"] = str(100 * essai)
+            print("Voix…" + (f" (essai {essai + 1})" if essai else ""), flush=True)
+            _, utilisee = voix.synthese_auto(script, wav, c["voix"], c.get("langue", "fr"), c.get("registre", "jeune"), c.get("accent"))
+            v["voix_utilisee"] = utilisee
+            print("Calage mot à mot…", flush=True)
+            mots = voix.calage(wav, script, langue=c.get("langue", "fr"))
+            if not voix.mal_dit(mots): break
+            print("  voix mal prononcée par endroits", flush=True)
+        else:
+            v["alerte"] = "voix mal prononcée par endroits : à écouter avant de poster"
+        calage_f.write_text(json.dumps({"empreinte": empreinte, "mots": mots}, ensure_ascii=False))
     mots = json.loads(calage_f.read_text())["mots"]
     import soundfile as sf
     duree = round(sf.info(str(wav)).duration + 0.4, 2)

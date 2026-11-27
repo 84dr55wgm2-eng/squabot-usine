@@ -3,6 +3,7 @@
 Chaque phrase est générée avec une émotion, sur le timbre de référence du profil (voix/references/<profil>.wav),
 pour une voix identique d'une vidéo à l'autre. Sans référence, la description du profil crée la voix et la 1re
 phrase devient la référence (enregistrée pour les vidéos suivantes)."""
+import os
 import sys, time
 from pathlib import Path
 import numpy as np, soundfile as sf
@@ -29,7 +30,7 @@ def generer(texte, sortie, profil, registre="jeune"):
     desc = PROFILS.get(profil, PROFILS["jeune-homme-energique"])
     morceaux, t0 = [], time.time()
     for i, ph in enumerate(phrases(texte)):
-        torch.manual_seed(7 + i)
+        torch.manual_seed(7 + i + int(os.environ.get("SQUABOT_VOX_GRAINE", 0)))
         style = emotion(ph, registre)
         if ref:
             w = m.generate(text=f"({style}){ph}", reference_wav_path=ref, cfg_value=2.0, inference_timesteps=10)
