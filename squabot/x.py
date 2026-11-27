@@ -24,9 +24,32 @@ def _conf():
     return f.name
 
 
-def comptes_suivis():
+def abonnements(moi, conf=None):
+    """Comptes suivis par le compte secondaire du bot (sa liste « Abonnements » sur 𝕏)."""
+    r = subprocess.run(["gallery-dl", "--config", conf or _conf(), "-j", f"https://x.com/{moi}/following"],
+                       capture_output=True, text=True, timeout=300)
+    pseudos = []
+    try:
+        for e in json.loads(r.stdout or "[]"):
+            if isinstance(e, list) and len(e) >= 2 and isinstance(e[1], str) and "x.com/" in e[1].replace("twitter.com/", "x.com/"):
+                ps = e[1].replace("twitter.com/", "x.com/").split("x.com/")[1].split("/")[0]
+                if ps and ps not in ("i", moi) and ps not in pseudos: pseudos.append(ps)
+    except json.JSONDecodeError: pass
+    if not pseudos: print(f"  abonnements de @{moi} illisibles ({(r.stderr.strip().splitlines() or ['?'])[-1][:160]})", flush=True)
+    return pseudos
+
+
+def comptes_suivis(conf=None):
+    """{chaîne: [pseudos]} : sources/x.yaml, plus tous les abonnements du compte secondaire (« a-classer »)."""
     f = config.DONNEES / "sources" / "x.yaml"
-    return yaml.safe_load(f.read_text()) if f.exists() else {}
+    c = yaml.safe_load(f.read_text()) if f.exists() else {}
+    moi = c.pop("compte_bot", None)
+    if moi:
+        connus = {p for v in c.values() for p in v}
+        nouveaux = [p for p in abonnements(moi, conf) if p not in connus]
+        c["a-classer"] = (c.get("a-classer") or []) + nouveaux
+        print(f"@{moi} suit {len(nouveaux) + len(connus)} comptes", flush=True)
+    return c
 
 
 def lire_compte(pseudo, n=25, conf=None):
@@ -65,9 +88,9 @@ def noter(p):
 
 def suivre():
     conf, tout = _conf(), []
-    for groupe, pseudos in comptes_suivis().items():
+    for groupe, pseudos in comptes_suivis(conf).items():
         for ps in pseudos:
-            posts = lire_compte(ps, conf=conf)
+            posts = lire_compte(ps, n=20, conf=conf)
             for p in posts: p["groupe"] = groupe; p["buzz"] = noter(p)
             print(f"  @{ps} : {len(posts)} posts, {sum(1 for p in posts if p['medias'])} avec médias", flush=True)
             tout += posts
