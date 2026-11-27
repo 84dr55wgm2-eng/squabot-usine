@@ -6,7 +6,7 @@ from pathlib import Path
 import yaml
 from . import config
 
-VOIX_DEFAUT = {"fr": "fr-FR-HenriNeural", "en": "en-US-AndrewNeural", "es": "es-ES-AlvaroNeural"}
+VOIX_DEFAUT = {"fr": "fr-FR-RemyMultilingualNeural", "en": "en-US-AndrewNeural", "es": "es-ES-AlvaroNeural"}
 
 
 ENERGIE = {"pose": 1.0, "naturel": 1.06, "energique": 1.13}
@@ -17,6 +17,10 @@ def _voix(d):
     langue = d.get("langue", "fr") if d.get("langue") in VOIX_DEFAUT else "fr"
     v = d.get("voix") if re.fullmatch(r"[a-z]{2}-[A-Z]{2}-\w+Neural", str(d.get("voix", ""))) else VOIX_DEFAUT[langue]
     vitesse = ENERGIE.get(d.get("energie"), 1.06)
+    profil = str(d.get("voix", ""))
+    if profil.startswith("voxcpm:") and re.fullmatch(r"[a-z-]{3,40}", profil[7:]):
+        # voix sur mesure VoxCPM2 (la plus naturelle) ; Edge en secours si le calcul échoue
+        return langue, {"modele": "voxcpm", "profil": profil[7:], "vitesse": vitesse, "secours": VOIX_DEFAUT[langue]}
     return langue, {"modele": "edge", "voix": v, "vitesse": vitesse, "vitesse_kokoro": round(vitesse + 0.04, 2)}
 
 
@@ -30,7 +34,8 @@ def depuis_demande(d, ancien=None):
         if r == "x" and d["nsfw"] == "adulte": reseaux[r]["marquage_adulte"] = True
     c = {"nom": d["nom"], "theme": d["theme"], "langue": langue,
          "registre": d.get("registre") if d.get("registre") in REGISTRES else "jeune",
-         "accent": voix["voix"][:5] if voix["voix"][:2] == langue else {"fr": "fr-FR", "en": "en-US", "es": "es-ES"}[langue], "actif": d.get("statut") != "pause", "nsfw": d["nsfw"], "voix": voix,
+         "accent": ("fr-CA" if "quebec" in voix.get("profil", "") else "fr-FR") if voix["modele"] == "voxcpm" else
+                   voix["voix"][:5] if voix["voix"][:2] == langue else {"fr": "fr-FR", "en": "en-US", "es": "es-ES"}[langue], "actif": d.get("statut") != "pause", "nsfw": d["nsfw"], "voix": voix,
          "rythme": {"videos_par_jour": max(1, min(10, int(d.get("videos_par_jour", 1)))), "heure": ancien.get("rythme", {}).get("heure", "18:00")},
          "validation": "manuelle" if d["nsfw"] == "adulte" or d.get("validation") else "auto",
          "publier_sur": reseaux, "formats": ["short"] + (["compilation"] if d.get("compilation", True) else []),
