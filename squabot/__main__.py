@@ -140,6 +140,8 @@ def main(a):
     elif cmd == "x":
         from . import x
         if a[1:2] == ["telecharger"]: print("\n".join(x.telecharger(a[2], a[3])))
+        elif a[1:2] == ["regarder"]:
+            for u in a[2:]: x.regarder(u)
         else: x.suivre()
     elif cmd == "index":
         index()

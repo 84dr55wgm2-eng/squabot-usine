@@ -210,3 +210,52 @@ def telecharger(url, dossier):
     subprocess.run(["gallery-dl", "--config", conf, "-D", str(dossier), "-f", "{tweet_id}_{num}.{extension}", url],
                    capture_output=True, text=True, timeout=600)
     return sorted(str(f) for f in dossier.iterdir() if f.suffix.lower() in (".mp4", ".jpg", ".jpeg", ".png", ".webp"))
+
+
+def regarder(url):
+    """« Regarde » un post avant d'écrire dessus : planche d'images minutées (1/s) + ce qui est dit dans la vidéo.
+    Résultat dans data/x/vus/<id>/ : planche_<n>.jpg et vu.json. Le script doit décrire CE QU'ON VOIT, plan par plan."""
+    import cv2, numpy as np
+    from PIL import Image, ImageDraw
+    tid = url.rstrip("/").split("/")[-1].split("?")[0]
+    d = config.RACINE / "data" / "x" / "vus" / tid; d.mkdir(parents=True, exist_ok=True)
+    tmp = Path(tempfile.mkdtemp())
+    medias = telecharger(url, tmp)
+    vu = {"url": url, "medias": []}
+    for k, f in enumerate(medias, 1):
+        if not f.endswith(".mp4"):
+            im = Image.open(f).convert("RGB"); im.thumbnail((720, 720)); im.save(d / f"photo_{k}.jpg", quality=85)
+            vu["medias"].append({"n": k, "type": "photo", "image": f"photo_{k}.jpg"}); continue
+        cap = cv2.VideoCapture(f); fps = cap.get(cv2.CAP_PROP_FPS) or 30
+        duree = cap.get(cv2.CAP_PROP_FRAME_COUNT) / fps
+        pas = 1.0 if duree <= 90 else 2.0
+        vignettes = []
+        t = 0.0
+        while t < duree:
+            cap.set(cv2.CAP_PROP_POS_MSEC, t * 1000); ok, fr = cap.read()
+            if not ok: break
+            im = Image.fromarray(cv2.cvtColor(fr, cv2.COLOR_BGR2RGB)); im.thumbnail((240, 240))
+            c = Image.new("RGB", (240, 240 + 26), (0, 0, 0)); c.paste(im, ((240 - im.width) // 2, 26))
+            ImageDraw.Draw(c).text((6, 4), f"{t:.0f} s", fill=(255, 230, 0)); vignettes.append(c)
+            t += pas
+        cap.release()
+        col = 8; rangs = -(-len(vignettes) // col)
+        planche = Image.new("RGB", (240 * col, 266 * max(1, rangs)))
+        for i, v in enumerate(vignettes): planche.paste(v, ((i % col) * 240, (i // col) * 266))
+        planche.save(d / f"planche_{k}.jpg", quality=80)
+        dit = []
+        try:
+            from faster_whisper import WhisperModel
+            a = tmp / "son.wav"
+            subprocess.run(["ffmpeg", "-nostdin", "-loglevel", "error", "-y", "-i", f, "-ar", "16000", "-ac", "1", str(a)], check=True)
+            import soundfile as sf
+            son, _ = sf.read(str(a), dtype="float32")
+            segs, info = WhisperModel("small", device="cpu", compute_type="int8").transcribe(son, vad_filter=True)
+            dit = [{"de": round(s.start, 1), "a": round(s.end, 1), "texte": s.text.strip()} for s in segs]
+        except Exception as e:
+            dit = [{"erreur": str(e)[:120]}]
+        vu["medias"].append({"n": k, "type": "video", "duree": round(duree, 1), "pas": pas,
+                             "planche": f"planche_{k}.jpg", "paroles": dit})
+    (d / "vu.json").write_text(json.dumps(vu, ensure_ascii=False, indent=1))
+    print(f"{url} : {len(vu['medias'])} média(s) regardé(s) → {d}", flush=True)
+    return vu
