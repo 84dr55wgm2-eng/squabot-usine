@@ -1,0 +1,40 @@
+# Publication : met à jour la liste « À poster » (mode manuel) ou envoie sur YouTube (mode auto, après l'audit).
+name: Publier
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "7,37 * * * *"
+permissions:
+  contents: read
+concurrency:
+  group: publier
+jobs:
+  publier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      SQUABOT_DONNEES: donnees
+      SQUABOT_DEPOT_DONNEES: 84dr55wgm2-eng/squabot
+      SQUABOT_CLE: ${{ secrets.SQUABOT_CLE }}
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      GH_TOKEN: ${{ secrets.SQUABOT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: 84dr55wgm2-eng/squabot
+          token: ${{ secrets.SQUABOT_TOKEN }}
+          path: donnees
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.13", cache: pip}
+      - run: pip install -q PyYAML==6.0.3 cryptography==50.0.1
+      - run: python -m squabot publier && python -m squabot index
+      - name: Enregistrer
+        run: |
+          cd donnees
+          git config user.name squabot && git config user.email squabot@users.noreply.github.com
+          git add -A data && git diff --cached --quiet && exit 0
+          git commit -m "Publication [skip ci]"
+          for i in 1 2 3 4; do git pull --rebase -X theirs origin main && git push && exit 0; sleep $((i * 5)); done
+          exit 1

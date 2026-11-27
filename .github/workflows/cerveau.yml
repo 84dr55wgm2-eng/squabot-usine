@@ -36,7 +36,14 @@ jobs:
         if: steps.jeton.outputs.ok == 'oui'
         with: {python-version: "3.13", cache: pip}
       - if: steps.jeton.outputs.ok == 'oui'
-        run: pip install PyYAML==6.0.3
+        run: sudo apt-get update -q && sudo apt-get install -y -q ffmpeg && pip install -q -r requirements.txt fastembed==0.9.1
+      - name: Clips 𝕏 candidats, regardés avant l'écriture
+        if: steps.jeton.outputs.ok == 'oui'
+        continue-on-error: true
+        env:
+          X_AUTH_TOKEN: ${{ secrets.X_AUTH_TOKEN }}
+          X_CT0: ${{ secrets.X_CT0 }}
+        run: python -m squabot x candidats
       - name: Réglages
         if: steps.jeton.outputs.ok == 'oui'
         id: reglages
@@ -45,6 +52,9 @@ jobs:
       - name: Tournée de Claude
         if: steps.jeton.outputs.ok == 'oui'
         uses: anthropics/claude-code-action@v1
+        env:
+          X_AUTH_TOKEN: ${{ secrets.X_AUTH_TOKEN }}
+          X_CT0: ${{ secrets.X_CT0 }}
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
@@ -53,7 +63,7 @@ jobs:
           claude_args: >-
             --model ${{ steps.reglages.outputs.modele }}
             --max-turns ${{ steps.reglages.outputs.tours }}
-            --allowedTools "Read,Write,Edit,Glob,Grep,WebFetch,WebSearch,Bash(python -m squabot verifier),Bash(python -m squabot variete),Bash(ls:*),Bash(date:*)"
+            --allowedTools "Read,Write,Edit,Glob,Grep,WebFetch,WebSearch,Bash(python -m squabot verifier),Bash(python -m squabot variete),Bash(python -m squabot x regarder:*),Bash(ls:*),Bash(date:*)"
       - name: Enregistrer et lancer la fabrication
         if: steps.jeton.outputs.ok == 'oui'
         env: {GH_TOKEN: "${{ github.token }}"}

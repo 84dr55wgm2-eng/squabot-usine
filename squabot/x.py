@@ -259,3 +259,41 @@ def regarder(url):
     (d / "vu.json").write_text(json.dumps(vu, ensure_ascii=False, indent=1))
     print(f"{url} : {len(vu['medias'])} média(s) regardé(s) → {d}", flush=True)
     return vu
+
+
+def candidats(par_chaine=6, heures=72, regarder_aussi=True):
+    """Pour chaque chaîne active : les meilleurs posts récents de son thème avec une vidéo, pas encore utilisés.
+    Les regarde (planche + paroles) pour que le cerveau écrive d'après les images. → data/x/candidats/<date>.json"""
+    dossier = config.RACINE / "data" / "x"
+    posts = {}
+    for f in sorted(dossier.glob("20*.json"))[-3:]:
+        for p in json.loads(f.read_text()): posts[p["id"]] = p
+    deja = set()
+    for f in (config.RACINE / "data" / "videos").glob("*/video.json"):
+        v = json.loads(f.read_text())
+        deja |= {s.rstrip("/").split("/")[-1] for s in (v.get("sources") or []) if "x.com/" in str(s)}
+    limite = datetime.datetime.utcnow() - datetime.timedelta(hours=heures)
+    choix = {}
+    for cid, c in config.comptes().items():
+        if not c.get("actif", True): continue
+        bons = []
+        for p in posts.values():
+            if p["id"] in deja or not any(m["type"] == "video" for m in p["medias"]): continue
+            if p.get("chaine") not in (None, cid) or (p.get("theme") != c.get("theme") and p.get("chaine") != cid): continue
+            try:
+                if datetime.datetime.fromisoformat(p["date"][:19]) < limite: continue
+            except ValueError: pass
+            bons.append(p)
+        bons.sort(key=lambda p: -p.get("buzz", 0))
+        choix[cid] = bons[:par_chaine]
+    sortie = dossier / "candidats" / f"{datetime.date.today()}.json"
+    sortie.parent.mkdir(parents=True, exist_ok=True)
+    sortie.write_text(json.dumps(choix, ensure_ascii=False, indent=1))
+    for cid, l in choix.items():
+        print(f"{cid} : {len(l)} posts candidats", flush=True)
+        if regarder_aussi:
+            for p in l:
+                if (dossier / "vus" / p["id"] / "vu.json").exists(): continue
+                try: regarder(p["url"])
+                except Exception as e: print(f"  {p['url']} : impossible à regarder ({e})", flush=True)
+    return choix

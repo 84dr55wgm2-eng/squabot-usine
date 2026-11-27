@@ -1,10 +1,11 @@
-# Fabrique les vidéos « a_fabriquer » des données privées. Toutes les 30 min, ou relancée par la tournée.
+# Fabrique les vidéos « a_fabriquer » des données privées, en parallèle (une machine par vidéo).
+# Toutes les 30 min, ou relancée par la tournée. Entrée « seul » : une seule vidéo.
 name: Fabriquer les vidéos
 on:
   workflow_dispatch:
     inputs:
       seul:
-        description: "Identifiant d'une seule vidéo (fabriquées en parallèle)"
+        description: "Identifiant d'une seule vidéo"
         required: false
         default: ""
   schedule:
@@ -16,20 +17,47 @@ concurrency:
   group: fabrication-${{ inputs.seul }}
   cancel-in-progress: false
 jobs:
-  cle:
+  liste:
     runs-on: ubuntu-latest
     outputs:
-      ok: ${{ steps.c.outputs.ok }}
+      ids: ${{ steps.l.outputs.ids }}
     steps:
-      - id: c
+      - id: cle
         env: {T: "${{ secrets.SQUABOT_TOKEN }}"}
+        run: if [ -z "$T" ]; then echo "Clé SQUABOT_TOKEN absente."; echo "ok=non" >> $GITHUB_OUTPUT; else echo "ok=oui" >> $GITHUB_OUTPUT; fi
+      - uses: actions/checkout@v4
+        if: steps.cle.outputs.ok == 'oui'
+      - uses: actions/checkout@v4
+        if: steps.cle.outputs.ok == 'oui'
+        with:
+          repository: 84dr55wgm2-eng/squabot
+          token: ${{ secrets.SQUABOT_TOKEN }}
+          path: donnees
+      - id: l
+        if: steps.cle.outputs.ok == 'oui'
+        env: {SEUL: "${{ inputs.seul }}"}
         run: |
-          if [ -z "$T" ]; then echo "Clé SQUABOT_TOKEN absente : rien à faire tant qu'elle n'est pas ajoutée (Settings → Secrets → Actions)."; echo "ok=non" >> $GITHUB_OUTPUT; else echo "ok=oui" >> $GITHUB_OUTPUT; fi
+          pip install -q PyYAML==6.0.3
+          ids=$(SQUABOT_DONNEES=donnees python -c "
+          import json, glob, os
+          s = os.environ.get('SEUL')
+          l = [json.load(open(f)) for f in sorted(glob.glob('donnees/data/videos/*/video.json'))]
+          l = [v['id'] for v in l if v.get('statut') == 'a_fabriquer' and (not s or v['id'] == s)]
+          print(json.dumps(l[:10]))")
+          echo "ids=$ids" >> $GITHUB_OUTPUT; echo "À fabriquer : $ids"
   fabriquer:
-    needs: cle
-    if: needs.cle.outputs.ok == 'oui'
+    needs: liste
+    if: needs.liste.outputs.ids != '' && needs.liste.outputs.ids != '[]'
+    strategy:
+      fail-fast: false
+      max-parallel: 10
+      matrix:
+        id: ${{ fromJSON(needs.liste.outputs.ids) }}
     runs-on: ubuntu-latest
     timeout-minutes: 350
+    concurrency:
+      group: video-${{ matrix.id }}
+      cancel-in-progress: false
     env:
       SQUABOT_DONNEES: donnees
       SQUABOT_DEPOT_DONNEES: 84dr55wgm2-eng/squabot
@@ -72,45 +100,44 @@ jobs:
             ~/.cache/squabot
             ~/.cache/huggingface
           key: modeles-v2
-      - name: Images déjà récupérées
+      - name: Voix et images déjà faites
         uses: actions/cache@v4
         with:
-          path: donnees/data/videos/*/cache
-          key: images-${{ github.run_id }}
-          restore-keys: images-
-      - name: Fabrication (8 vidéos max)
+          path: donnees/data/videos/${{ matrix.id }}/cache
+          key: cache-${{ matrix.id }}-${{ github.run_id }}
+          restore-keys: cache-${{ matrix.id }}-
+      - name: Fabrication
         env:
           GH_TOKEN: ${{ secrets.SQUABOT_TOKEN }}
           GH_REPO: 84dr55wgm2-eng/squabot
           X_AUTH_TOKEN: ${{ secrets.X_AUTH_TOKEN }}
           X_CT0: ${{ secrets.X_CT0 }}
+          ID: ${{ matrix.id }}
         run: |
-          python -m squabot a-fabriquer > tout.txt
-          if [ -n "${{ inputs.seul }}" ]; then grep "/${{ inputs.seul }}$" tout.txt > t2.txt || true; mv t2.txt tout.txt; fi
-          head -n 8 tout.txt > liste.txt
-          while read -r dossier; do
-            [ -z "$dossier" ] && continue
-            id=$(basename "$dossier")
-            python -m squabot fabriquer "$dossier"
-            ffmpeg -nostdin -loglevel error -y -i "$dossier/video.mp4" -vf scale=720:1280 -c:v libx264 -crf 26 -preset slow \
-              -c:a aac -b:a 128k -movflags +faststart "$dossier/apercu.mp4"
-            gh release create "$id" --title "$id" --notes "Vidéo fabriquée par squabot" --prerelease \
-              "$dossier/video.mp4" "$dossier/miniature.jpg" 2>/dev/null \
-              || gh release upload "$id" "$dossier/video.mp4" "$dossier/miniature.jpg" --clobber
-          done < liste.txt
-          echo "reste=$(( $(wc -l < tout.txt) - $(wc -l < liste.txt) ))" >> "$GITHUB_ENV"
-          printf 'data/videos/*/video.mp4\ndata/videos/*/*.wav\ndata/videos/*/cache/\n' >> donnees/.git/info/exclude
-          python -m squabot index
+          dossier="donnees/data/videos/$ID"
+          st=$(python -c "import json;print(json.load(open('$dossier/video.json')).get('statut'))")
+          [ "$st" != "a_fabriquer" ] && { echo "Déjà faite ($st)"; exit 0; }
+          python -m squabot fabriquer "$dossier"
+          ffmpeg -nostdin -loglevel error -y -i "$dossier/video.mp4" -vf scale=720:1280 -c:v libx264 -crf 26 -preset slow \
+            -c:a aac -b:a 128k -movflags +faststart "$dossier/apercu.mp4"
+          gh release create "$ID" --title "$ID" --notes "Vidéo fabriquée par squabot" --prerelease \
+            "$dossier/video.mp4" "$dossier/miniature.jpg" 2>/dev/null \
+            || gh release upload "$ID" "$dossier/video.mp4" "$dossier/miniature.jpg" --clobber
       - name: Enregistrer dans les données privées
+        env: {ID: "${{ matrix.id }}"}
         run: |
           cd donnees
           git config user.name squabot && git config user.email squabot@users.noreply.github.com
-          git add -A data tableau comptes 2>/dev/null || git add -A data
+          printf 'data/videos/*/video.mp4\ndata/videos/*/*.wav\ndata/videos/*/cache/\n' >> .git/info/exclude
+          git add -A "data/videos/$ID"
           git diff --cached --quiet && exit 0
-          git commit -m "Vidéos fabriquées [skip ci]"
-          for i in 1 2 3 4; do git pull --rebase -X theirs origin main && git push && exit 0; sleep $((i * 5)); done
+          git commit -m "Vidéo fabriquée : $ID [skip ci]"
+          for i in 1 2 3 4 5 6; do git pull --rebase -X theirs origin main && git push && exit 0; sleep $((i * 7)); done
           exit 1
-      - name: Relancer s'il reste des vidéos
-        if: env.reste != '0' && env.reste != '' && inputs.seul == ''
-        env: {GH_TOKEN: "${{ github.token }}"}
-        run: gh workflow run fabriquer.yml
+  publier:
+    needs: fabriquer
+    if: always() && needs.fabriquer.result != 'skipped'
+    runs-on: ubuntu-latest
+    steps:
+      - env: {GH_TOKEN: "${{ github.token }}"}
+        run: gh workflow run publier.yml --repo ${{ github.repository }}

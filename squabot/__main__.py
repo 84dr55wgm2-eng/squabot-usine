@@ -12,7 +12,6 @@
   python -m squabot index                     met à jour data/index.json pour le tableau de bord
 """
 import json, sys
-from pathlib import Path
 from . import config
 
 VIDEOS = config.RACINE / "data" / "videos"
@@ -81,7 +80,7 @@ def compilations(minimum=8):
         prets = []
         for f in sorted(VIDEOS.glob("*/video.json")):
             v = json.loads(f.read_text())
-            if v.get("compte") == cid and v.get("statut") in ("a_valider", "valide", "publie") and not v.get("compilee"):
+            if v.get("compte") == cid and v.get("statut") in ("a_valider", "prete", "envoyee", "valide", "publie") and not v.get("compilee"):
                 prets.append((f.parent, v))
         if len(prets) < minimum: print(f"{cid} : {len(prets)}/{minimum} vidéos, pas encore de compilation"); continue
         lot = prets[:12]
@@ -98,7 +97,7 @@ def compilations(minimum=8):
         titre = f"{len(fichiers)} histoires incroyables · {th}"
         compiler(cid, titre, fichiers, dossier / "video.mp4", dossier / "travail")
         (dossier / "video.json").write_text(json.dumps({"id": ident, "compte": cid, "type": "compilation", "titre": titre,
-            "format": "long", "reseaux": ["youtube"], "statut": "a_valider", "contenu": [v["id"] for _, v in lot]},
+            "format": "long", "reseaux": ["youtube"], "statut": "prete", "contenu": [v["id"] for _, v in lot]},
             ensure_ascii=False, indent=2))
         for d, v in lot:
             v["compilee"] = ident; (d / "video.json").write_text(json.dumps(v, ensure_ascii=False, indent=2) + "\n")
@@ -140,9 +139,13 @@ def main(a):
     elif cmd == "x":
         from . import x
         if a[1:2] == ["telecharger"]: print("\n".join(x.telecharger(a[2], a[3])))
+        elif a[1:2] == ["candidats"]: x.candidats()
         elif a[1:2] == ["regarder"]:
             for u in a[2:]: x.regarder(u)
         else: x.suivre()
+    elif cmd == "publier":
+        from .publier import publier
+        publier()
     elif cmd == "index":
         index()
     else:

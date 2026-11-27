@@ -314,7 +314,7 @@ def fabriquer(dossier, planche_seule=False):
     v["duree"] = duree
     v["credits_images"] = sorted(set(x for x in sources.values() if x))
     v["credit_musique"] = credit_musique
-    v["statut"] = "a_valider"
+    v["statut"] = "a_verifier" if v.get("alerte") else "prete"     # prête : partira seule à son créneau
     v["fabriquee_le"] = time.strftime("%Y-%m-%d %H:%M")
     ecrire(dossier, v)
     print(f"Terminé en {time.time() - t0:.0f} s : {sortie}", flush=True)
