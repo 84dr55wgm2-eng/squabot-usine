@@ -1,0 +1,43 @@
+# Veille 𝕏 : lit les comptes suivis (sources/x.yaml des données privées), note les posts, garde l'index.
+# Les médias ne sont pas publiés ici : ils sont téléchargés au moment du montage.
+name: Veille X
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */3 * * *"
+permissions:
+  contents: read
+jobs:
+  x:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SQUABOT_DONNEES: donnees
+      X_AUTH_TOKEN: ${{ secrets.X_AUTH_TOKEN }}
+      X_CT0: ${{ secrets.X_CT0 }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: 84dr55wgm2-eng/squabot
+          token: ${{ secrets.SQUABOT_TOKEN }}
+          path: donnees
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.13", cache: pip}
+      - run: pip install -q PyYAML gallery-dl==1.32.21
+      - name: Lire les comptes
+        run: python -m squabot x suivre
+      - name: Essai de téléchargement (meilleur post avec vidéo)
+        run: |
+          u=$(python -c "import json,glob;p=json.load(open(sorted(glob.glob('donnees/data/x/*.json'))[-1]));v=[x for x in p if any(m['type']=='video' for m in x['medias'])];print(v[0]['url'] if v else '')")
+          [ -z "$u" ] && { echo "aucune vidéo"; exit 0; }
+          python -m squabot x telecharger "$u" /tmp/essai >/dev/null
+          ls -la /tmp/essai | tail -n +2 | awk '{print $5, $9}'
+      - name: Enregistrer dans les données privées
+        run: |
+          cd donnees
+          git config user.name squabot && git config user.email squabot@users.noreply.github.com
+          git add -A data/x && git diff --cached --quiet && exit 0
+          git commit -m "Veille X [skip ci]"
+          for i in 1 2 3 4; do git pull --rebase -X theirs origin main && git push && exit 0; sleep $((i * 5)); done
+          exit 1

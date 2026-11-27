@@ -137,6 +137,10 @@ def main(a):
     elif cmd == "veille":
         from .veille import tout_veiller
         tout_veiller()
+    elif cmd == "x":
+        from . import x
+        if a[1:2] == ["telecharger"]: print("\n".join(x.telecharger(a[2], a[3])))
+        else: x.suivre()
     elif cmd == "index":
         index()
     else:
