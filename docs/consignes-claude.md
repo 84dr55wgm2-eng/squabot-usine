@@ -25,9 +25,22 @@ GitHub Actions fabrique ensuite les vidéos seul.
   copie du texte ou de la vidéo d'un autre créateur.
 - `adulte` : personnages adultes et fictifs, visuels suggestifs non explicites, uniquement pour les comptes adultes.
 
+## Ne pas être « contenu produit en masse »
+
+YouTube démonétise les chaînes dont les vidéos se ressemblent toutes (règle « contenu inauthentique »). Chaque vidéo doit
+avoir son angle, ses faits vérifiés et sa forme : varie l'accroche (question, chiffre, scène, citation), la structure
+(récit, liste, enquête, avant/après), le premier plan et la chute. Jamais deux vidéos de suite qui commencent pareil.
+
+## Rétention (voir `squabot/strategie.yaml`)
+
+- 2 premières secondes : la promesse concrète ou l'image choc, 12 mots maximum, aucune salutation.
+- Une relance toutes les 15 s environ ; la réponse à la fin ; la dernière phrase peut boucler sur la première.
+- Rien d'immobile plus de 3 s à l'écran.
+- `epingle` : une question simple à épingler en commentaire pour lancer la discussion.
+
 ## Script
 
-- Français parlé, phrases courtes, une phrase par ligne (`\n`). Accroche choc dans la première ligne.
+- Dans la langue de la chaîne (`langue`), parlé, phrases courtes, une phrase par ligne (`\n`). Accroche choc dans la première ligne.
 - Durée : environ 2,6 mots par seconde. **Cible : 165 à 195 mots (62 à 75 s)** : au-dessus de 61 s la vidéo est
   rémunérée par TikTok, et elle reste un Short valable sur YouTube (jusqu'à 3 min). Ne descends sous 61 s que si le
   compte ne publie pas sur TikTok.

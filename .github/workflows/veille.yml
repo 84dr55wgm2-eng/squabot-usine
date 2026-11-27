@@ -40,6 +40,7 @@ jobs:
       - name: Outils
         run: |
           pip install PyYAML==6.0.3 yt-dlp==2026.10.26
+      - run: python -m squabot tendances || echo "tendances indisponibles"
       - run: python -m squabot veille
       - name: Enregistrer dans les données privées
         run: |
