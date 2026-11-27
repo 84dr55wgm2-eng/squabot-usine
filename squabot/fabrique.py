@@ -230,7 +230,6 @@ def fabriquer(dossier, planche_seule=False):
         if i % 300 == 0: print(f"  {i}/{n}", flush=True)
     p.stdin.close(); p.wait()
     faire_miniature(v, dossier, fichiers, th)
-    import os
     depot = os.environ.get("SQUABOT_DEPOT_DONNEES") or os.environ.get("GITHUB_REPOSITORY")
     if depot:                                    # la vidéo est rangée dans une release du dépôt des données
         v["video_url"] = f"https://github.com/{depot}/releases/download/{v['id']}/video.mp4"
