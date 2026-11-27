@@ -9,10 +9,15 @@ from . import config
 VOIX_DEFAUT = {"fr": "fr-FR-HenriNeural", "en": "en-US-AndrewNeural", "es": "es-ES-AlvaroNeural"}
 
 
+ENERGIE = {"pose": 1.0, "naturel": 1.06, "energique": 1.13}
+REGISTRES = ("jeune", "neutre", "pose")
+
+
 def _voix(d):
     langue = d.get("langue", "fr") if d.get("langue") in VOIX_DEFAUT else "fr"
     v = d.get("voix") if re.fullmatch(r"[a-z]{2}-[A-Z]{2}-\w+Neural", str(d.get("voix", ""))) else VOIX_DEFAUT[langue]
-    return langue, {"modele": "edge", "voix": v, "vitesse": 1.05, "vitesse_kokoro": 1.1}
+    vitesse = ENERGIE.get(d.get("energie"), 1.06)
+    return langue, {"modele": "edge", "voix": v, "vitesse": vitesse, "vitesse_kokoro": round(vitesse + 0.04, 2)}
 
 
 def depuis_demande(d, ancien=None):
@@ -23,7 +28,9 @@ def depuis_demande(d, ancien=None):
     for r in d["reseaux"]:
         reseaux[r] = dict(ancien.get("publier_sur", {}).get(r) or {"compte": d.get("identifiant") or "@a-renseigner"})
         if r == "x" and d["nsfw"] == "adulte": reseaux[r]["marquage_adulte"] = True
-    c = {"nom": d["nom"], "theme": d["theme"], "langue": langue, "actif": d.get("statut") != "pause", "nsfw": d["nsfw"], "voix": voix,
+    c = {"nom": d["nom"], "theme": d["theme"], "langue": langue,
+         "registre": d.get("registre") if d.get("registre") in REGISTRES else "jeune",
+         "accent": d["voix"][:5] if re.fullmatch(r"[a-z]{2}-[A-Z]{2}-\w+Neural", str(d.get("voix", ""))) else None, "actif": d.get("statut") != "pause", "nsfw": d["nsfw"], "voix": voix,
          "rythme": {"videos_par_jour": max(1, min(10, int(d.get("videos_par_jour", 1)))), "heure": ancien.get("rythme", {}).get("heure", "18:00")},
          "validation": "manuelle" if d["nsfw"] == "adulte" or d.get("validation") else "auto",
          "publier_sur": reseaux, "formats": ["short"] + (["compilation"] if d.get("compilation", True) else []),

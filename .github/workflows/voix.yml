@@ -10,7 +10,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.13", cache: pip}
-      - run: pip install edge-tts==7.3.1 && sudo apt-get install -y -qq ffmpeg >/dev/null
+      - run: pip install edge-tts==7.3.1 && sudo apt-get update -q && sudo apt-get install -y -q ffmpeg
       - run: python -m squabot.catalogue_voix
       - name: Enregistrer
         run: |

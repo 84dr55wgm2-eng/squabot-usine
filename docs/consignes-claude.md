@@ -47,6 +47,18 @@ avoir son angle, ses faits vérifiés et sa forme. Concrètement, dans `video.js
 - Rien d'immobile plus de 3 s à l'écran.
 - `epingle` : une question simple à épingler en commentaire pour lancer la discussion.
 
+## Registre (`registre` du compte)
+
+- `jeune` (par défaut) : on parle à des 18-30 ans. Tutoiement, phrases très courtes, rythme de conversation.
+  Expressions courantes et naturelles, **une ou deux par vidéo, jamais forcées** : « franchement », « attends »,
+  « le truc, c'est que… », « c'est chaud », « de ouf », « j'avoue », « grave », « en vrai ». Accorde-les à l'`accent`
+  de la voix : fr-CA (« pantoute », « pis », « c'est malade »), fr-BE (« savoir » pour « pouvoir », « non peut-être »),
+  fr-CH (« ça joue », « tout de bon »), en-GB (« proper », « mad »), en-AU (« heaps », « reckon »), es-MX (« neta »,
+  « qué onda »), es-AR (« re », « che »), es-ES (« flipante », « tío »). Jamais de verlan lourd, d'argot qui vieillit
+  vite ni de faute volontaire ; les faits restent exacts et sourcés.
+- `neutre` : vouvoiement ou forme impersonnelle, ton documentaire vivant.
+- `pose` : voix grave et lente, phrases plus longues, ambiance (horreur, mystère, histoire).
+
 ## Script
 
 - Dans la langue de la chaîne (`langue`), parlé, phrases courtes, une phrase par ligne (`\n`). Accroche choc dans la première ligne.
