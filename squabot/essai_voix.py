@@ -76,7 +76,7 @@ def gemini():
 def edge():
     import asyncio, edge_tts
     for v in ("fr-FR-RemyMultilingualNeural", "fr-FR-VivienneMultilingualNeural"):
-        asyncio.run(edge_tts.Communicate(TEXTE, v, rate="+8%").save("/tmp/e.mp3")); mp3("/tmp/e.mp3", f"edge-{v.split('-')[2][:-17] or v}")
+        asyncio.run(edge_tts.Communicate(TEXTE, v, rate="+8%").save("/tmp/e.mp3")); mp3("/tmp/e.mp3", f"edge-{v.split('-')[2].replace('MultilingualNeural', '')}")
 
 
 if __name__ == "__main__":
