@@ -22,6 +22,47 @@ def mp3(wav, nom):
     print("écrit", out, flush=True)
 
 
+def vox_phrases(m, texte, desc, ref=None, registre="jeune"):
+    """Phrase par phrase, avec une émotion par phrase (le ton ne retombe pas). Sans référence, la 1re phrase
+    créée sert de référence aux suivantes : le timbre reste le même."""
+    import numpy as np, soundfile as sf, torch
+    from .oral import phrases, emotion
+    sr = m.tts_model.sample_rate; morceaux = []
+    for i, ph in enumerate(phrases(texte)):
+        torch.manual_seed(7 + i)
+        style = emotion(ph, registre)
+        if ref:
+            w = m.generate(text=f"({style}){ph}", reference_wav_path=ref, cfg_value=2.0, inference_timesteps=10)
+        else:
+            w = m.generate(text=f"({desc}, {style}){ph}", cfg_value=2.0, inference_timesteps=10)
+            sf.write("/tmp/ref.wav", w, sr); ref = "/tmp/ref.wav"
+        morceaux += [w, np.zeros(int(sr * 0.12), dtype=w.dtype)]
+    return np.concatenate(morceaux), sr
+
+
+V2 = {
+    "homme-energique-v2": (None, "voix/essais/voxcpm-jeune-homme-energique.mp3"),
+    "femme-chaleureuse": ("A young French woman in her twenties, medium-low pitch, warm and slightly husky voice, playful, natural conversational French", None),
+    "femme-complice": ("A young French woman, low-medium pitch, confident and fun, casually telling a crazy story to close friends", None),
+}
+
+
+def voxcpm2():
+    import soundfile as sf, subprocess, time
+    from voxcpm import VoxCPM
+    from .oral import a_dire
+    m = VoxCPM.from_pretrained("openbmb/VoxCPM2", load_denoiser=False, optimize=False, device="cpu")
+    texte = a_dire(TEXTE, "fr", "jeune")
+    print("texte dit :", texte, flush=True)
+    for nom, (desc, ref) in V2.items():
+        t0 = time.time()
+        if ref:
+            subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", ref, "-ac", "1", "-ar", "16000", "/tmp/ref0.wav"], check=True); ref = "/tmp/ref0.wav"
+        wav, sr = vox_phrases(m, texte, desc, ref)
+        sf.write("/tmp/v.wav", wav, sr); mp3("/tmp/v.wav", f"voxcpm2-{nom}")
+        print(f"  {nom} : {time.time() - t0:.0f} s de calcul pour {len(wav) / sr:.1f} s d'audio", flush=True)
+
+
 def voxcpm():
     import soundfile as sf
     from voxcpm import VoxCPM
@@ -81,4 +122,4 @@ def edge():
 
 
 if __name__ == "__main__":
-    {"voxcpm": voxcpm, "supertonic": supertonic, "gemini": gemini, "edge": edge}[sys.argv[1]]()
+    {"voxcpm": voxcpm, "voxcpm2": voxcpm2, "supertonic": supertonic, "gemini": gemini, "edge": edge}[sys.argv[1]]()
