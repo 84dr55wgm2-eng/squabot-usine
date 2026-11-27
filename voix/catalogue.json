@@ -1,6 +1,7 @@
 [
  {
   "id": "en-AU-NatashaNeural",
+  "extrait": "en-AU-NatashaNeural.mp3",
   "langue": "en",
   "locale": "en-AU",
   "pays": "Australie",
@@ -14,6 +15,7 @@
  },
  {
   "id": "en-AU-WilliamMultilingualNeural",
+  "extrait": "en-AU-WilliamMultilingualNeural.mp3",
   "langue": "en",
   "locale": "en-AU",
   "pays": "Australie",
@@ -26,7 +28,36 @@
   ]
  },
  {
+  "id": "en-AU-WilliamMultilingualNeural",
+  "extrait": "en-AU-WilliamMultilingualNeural.fr.mp3",
+  "langue": "fr",
+  "locale": "en-AU",
+  "pays": "accent anglais",
+  "genre": "h",
+  "prenom": "William",
+  "multilingue": true,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "en-AU-WilliamMultilingualNeural",
+  "extrait": "en-AU-WilliamMultilingualNeural.es.mp3",
+  "langue": "es",
+  "locale": "en-AU",
+  "pays": "accent anglais",
+  "genre": "h",
+  "prenom": "William",
+  "multilingue": true,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
   "id": "en-CA-ClaraNeural",
+  "extrait": "en-CA-ClaraNeural.mp3",
   "langue": "en",
   "locale": "en-CA",
   "pays": "Canada",
@@ -40,6 +71,7 @@
  },
  {
   "id": "en-CA-LiamNeural",
+  "extrait": "en-CA-LiamNeural.mp3",
   "langue": "en",
   "locale": "en-CA",
   "pays": "Canada",
@@ -53,6 +85,7 @@
  },
  {
   "id": "en-GB-LibbyNeural",
+  "extrait": "en-GB-LibbyNeural.mp3",
   "langue": "en",
   "locale": "en-GB",
   "pays": "Royaume-Uni",
@@ -66,6 +99,7 @@
  },
  {
   "id": "en-GB-MaisieNeural",
+  "extrait": "en-GB-MaisieNeural.mp3",
   "langue": "en",
   "locale": "en-GB",
   "pays": "Royaume-Uni",
@@ -79,6 +113,7 @@
  },
  {
   "id": "en-GB-RyanNeural",
+  "extrait": "en-GB-RyanNeural.mp3",
   "langue": "en",
   "locale": "en-GB",
   "pays": "Royaume-Uni",
@@ -92,6 +127,7 @@
  },
  {
   "id": "en-GB-SoniaNeural",
+  "extrait": "en-GB-SoniaNeural.mp3",
   "langue": "en",
   "locale": "en-GB",
   "pays": "Royaume-Uni",
@@ -105,6 +141,7 @@
  },
  {
   "id": "en-GB-ThomasNeural",
+  "extrait": "en-GB-ThomasNeural.mp3",
   "langue": "en",
   "locale": "en-GB",
   "pays": "Royaume-Uni",
@@ -118,6 +155,7 @@
  },
  {
   "id": "en-IE-ConnorNeural",
+  "extrait": "en-IE-ConnorNeural.mp3",
   "langue": "en",
   "locale": "en-IE",
   "pays": "Irlande",
@@ -131,6 +169,7 @@
  },
  {
   "id": "en-IE-EmilyNeural",
+  "extrait": "en-IE-EmilyNeural.mp3",
   "langue": "en",
   "locale": "en-IE",
   "pays": "Irlande",
@@ -144,6 +183,7 @@
  },
  {
   "id": "en-US-AnaNeural",
+  "extrait": "en-US-AnaNeural.mp3",
   "langue": "en",
   "locale": "en-US",
   "pays": "États-Unis",
@@ -156,6 +196,7 @@
  },
  {
   "id": "en-US-AndrewNeural",
+  "extrait": "en-US-AndrewNeural.mp3",
   "langue": "en",
   "locale": "en-US",
   "pays": "États-Unis",
@@ -171,6 +212,7 @@
  },
  {
   "id": "en-US-AriaNeural",
+  "extrait": "en-US-AriaNeural.mp3",
   "langue": "en",
   "locale": "en-US",
   "pays": "États-Unis",
@@ -184,6 +226,7 @@
  },
  {
   "id": "en-US-AvaMultilingualNeural",
+  "extrait": "en-US-AvaMultilingualNeural.mp3",
   "langue": "en",
   "locale": "en-US",
   "pays": "États-Unis",
@@ -198,7 +241,40 @@
   ]
  },
  {
+  "id": "en-US-AvaMultilingualNeural",
+  "extrait": "en-US-AvaMultilingualNeural.fr.mp3",
+  "langue": "fr",
+  "locale": "en-US",
+  "pays": "accent anglais",
+  "genre": "f",
+  "prenom": "Ava",
+  "multilingue": true,
+  "personnalite": [
+   "Expressive",
+   "Caring",
+   "Pleasant",
+   "Friendly"
+  ]
+ },
+ {
+  "id": "en-US-AvaMultilingualNeural",
+  "extrait": "en-US-AvaMultilingualNeural.es.mp3",
+  "langue": "es",
+  "locale": "en-US",
+  "pays": "accent anglais",
+  "genre": "f",
+  "prenom": "Ava",
+  "multilingue": true,
+  "personnalite": [
+   "Expressive",
+   "Caring",
+   "Pleasant",
+   "Friendly"
+  ]
+ },
+ {
   "id": "en-US-AvaNeural",
+  "extrait": "en-US-AvaNeural.mp3",
   "langue": "en",
   "locale": "en-US",
   "pays": "États-Unis",
@@ -214,6 +290,7 @@
  },
  {
   "id": "en-US-BrianMultilingualNeural",
+  "extrait": "en-US-BrianMultilingualNeural.mp3",
   "langue": "en",
   "locale": "en-US",
   "pays": "États-Unis",
@@ -227,7 +304,38 @@
   ]
  },
  {
+  "id": "en-US-BrianMultilingualNeural",
+  "extrait": "en-US-BrianMultilingualNeural.fr.mp3",
+  "langue": "fr",
+  "locale": "en-US",
+  "pays": "accent anglais",
+  "genre": "h",
+  "prenom": "Brian",
+  "multilingue": true,
+  "personnalite": [
+   "Approachable",
+   "Casual",
+   "Sincere"
+  ]
+ },
+ {
+  "id": "en-US-BrianMultilingualNeural",
+  "extrait": "en-US-BrianMultilingualNeural.es.mp3",
+  "langue": "es",
+  "locale": "en-US",
+  "pays": "accent anglais",
+  "genre": "h",
+  "prenom": "Brian",
+  "multilingue": true,
+  "personnalite": [
+   "Approachable",
+   "Casual",
+   "Sincere"
+  ]
+ },
+ {
   "id": "en-US-BrianNeural",
+  "extrait": "en-US-BrianNeural.mp3",
   "langue": "en",
   "locale": "en-US",
   "pays": "États-Unis",
@@ -242,6 +350,7 @@
  },
  {
   "id": "en-US-ChristopherNeural",
+  "extrait": "en-US-ChristopherNeural.mp3",
   "langue": "en",
   "locale": "en-US",
   "pays": "États-Unis",
@@ -255,6 +364,7 @@
  },
  {
   "id": "en-US-EmmaMultilingualNeural",
+  "extrait": "en-US-EmmaMultilingualNeural.mp3",
   "langue": "en",
   "locale": "en-US",
   "pays": "États-Unis",
@@ -268,7 +378,38 @@
   ]
  },
  {
+  "id": "en-US-EmmaMultilingualNeural",
+  "extrait": "en-US-EmmaMultilingualNeural.fr.mp3",
+  "langue": "fr",
+  "locale": "en-US",
+  "pays": "accent anglais",
+  "genre": "f",
+  "prenom": "Emma",
+  "multilingue": true,
+  "personnalite": [
+   "Cheerful",
+   "Clear",
+   "Conversational"
+  ]
+ },
+ {
+  "id": "en-US-EmmaMultilingualNeural",
+  "extrait": "en-US-EmmaMultilingualNeural.es.mp3",
+  "langue": "es",
+  "locale": "en-US",
+  "pays": "accent anglais",
+  "genre": "f",
+  "prenom": "Emma",
+  "multilingue": true,
+  "personnalite": [
+   "Cheerful",
+   "Clear",
+   "Conversational"
+  ]
+ },
+ {
   "id": "en-US-EmmaNeural",
+  "extrait": "en-US-EmmaNeural.mp3",
   "langue": "en",
   "locale": "en-US",
   "pays": "États-Unis",
@@ -283,6 +424,7 @@
  },
  {
   "id": "en-US-EricNeural",
+  "extrait": "en-US-EricNeural.mp3",
   "langue": "en",
   "locale": "en-US",
   "pays": "États-Unis",
@@ -295,6 +437,7 @@
  },
  {
   "id": "en-US-GuyNeural",
+  "extrait": "en-US-GuyNeural.mp3",
   "langue": "en",
   "locale": "en-US",
   "pays": "États-Unis",
@@ -307,6 +450,7 @@
  },
  {
   "id": "en-US-JennyNeural",
+  "extrait": "en-US-JennyNeural.mp3",
   "langue": "en",
   "locale": "en-US",
   "pays": "États-Unis",
@@ -321,6 +465,7 @@
  },
  {
   "id": "en-US-MichelleNeural",
+  "extrait": "en-US-MichelleNeural.mp3",
   "langue": "en",
   "locale": "en-US",
   "pays": "États-Unis",
@@ -334,6 +479,7 @@
  },
  {
   "id": "en-US-RogerNeural",
+  "extrait": "en-US-RogerNeural.mp3",
   "langue": "en",
   "locale": "en-US",
   "pays": "États-Unis",
@@ -346,6 +492,7 @@
  },
  {
   "id": "en-US-SteffanNeural",
+  "extrait": "en-US-SteffanNeural.mp3",
   "langue": "en",
   "locale": "en-US",
   "pays": "États-Unis",
@@ -358,6 +505,7 @@
  },
  {
   "id": "es-AR-ElenaNeural",
+  "extrait": "es-AR-ElenaNeural.mp3",
   "langue": "es",
   "locale": "es-AR",
   "pays": "Argentine",
@@ -371,6 +519,7 @@
  },
  {
   "id": "es-AR-TomasNeural",
+  "extrait": "es-AR-TomasNeural.mp3",
   "langue": "es",
   "locale": "es-AR",
   "pays": "Argentine",
@@ -384,6 +533,7 @@
  },
  {
   "id": "es-CO-GonzaloNeural",
+  "extrait": "es-CO-GonzaloNeural.mp3",
   "langue": "es",
   "locale": "es-CO",
   "pays": "Colombie",
@@ -397,6 +547,7 @@
  },
  {
   "id": "es-CO-SalomeNeural",
+  "extrait": "es-CO-SalomeNeural.mp3",
   "langue": "es",
   "locale": "es-CO",
   "pays": "Colombie",
@@ -410,6 +561,7 @@
  },
  {
   "id": "es-ES-AlvaroNeural",
+  "extrait": "es-ES-AlvaroNeural.mp3",
   "langue": "es",
   "locale": "es-ES",
   "pays": "Espagne",
@@ -423,6 +575,7 @@
  },
  {
   "id": "es-ES-ElviraNeural",
+  "extrait": "es-ES-ElviraNeural.mp3",
   "langue": "es",
   "locale": "es-ES",
   "pays": "Espagne",
@@ -436,6 +589,7 @@
  },
  {
   "id": "es-ES-XimenaNeural",
+  "extrait": "es-ES-XimenaNeural.mp3",
   "langue": "es",
   "locale": "es-ES",
   "pays": "Espagne",
@@ -449,6 +603,7 @@
  },
  {
   "id": "es-MX-DaliaNeural",
+  "extrait": "es-MX-DaliaNeural.mp3",
   "langue": "es",
   "locale": "es-MX",
   "pays": "Mexique",
@@ -462,6 +617,7 @@
  },
  {
   "id": "es-MX-JorgeNeural",
+  "extrait": "es-MX-JorgeNeural.mp3",
   "langue": "es",
   "locale": "es-MX",
   "pays": "Mexique",
@@ -475,6 +631,7 @@
  },
  {
   "id": "es-US-AlonsoNeural",
+  "extrait": "es-US-AlonsoNeural.mp3",
   "langue": "es",
   "locale": "es-US",
   "pays": "États-Unis",
@@ -488,6 +645,7 @@
  },
  {
   "id": "es-US-PalomaNeural",
+  "extrait": "es-US-PalomaNeural.mp3",
   "langue": "es",
   "locale": "es-US",
   "pays": "États-Unis",
@@ -501,6 +659,7 @@
  },
  {
   "id": "fr-BE-CharlineNeural",
+  "extrait": "fr-BE-CharlineNeural.mp3",
   "langue": "fr",
   "locale": "fr-BE",
   "pays": "Belgique",
@@ -514,6 +673,7 @@
  },
  {
   "id": "fr-BE-GerardNeural",
+  "extrait": "fr-BE-GerardNeural.mp3",
   "langue": "fr",
   "locale": "fr-BE",
   "pays": "Belgique",
@@ -527,6 +687,7 @@
  },
  {
   "id": "fr-CA-AntoineNeural",
+  "extrait": "fr-CA-AntoineNeural.mp3",
   "langue": "fr",
   "locale": "fr-CA",
   "pays": "Québec",
@@ -540,6 +701,7 @@
  },
  {
   "id": "fr-CA-JeanNeural",
+  "extrait": "fr-CA-JeanNeural.mp3",
   "langue": "fr",
   "locale": "fr-CA",
   "pays": "Québec",
@@ -553,6 +715,7 @@
  },
  {
   "id": "fr-CA-SylvieNeural",
+  "extrait": "fr-CA-SylvieNeural.mp3",
   "langue": "fr",
   "locale": "fr-CA",
   "pays": "Québec",
@@ -566,6 +729,7 @@
  },
  {
   "id": "fr-CA-ThierryNeural",
+  "extrait": "fr-CA-ThierryNeural.mp3",
   "langue": "fr",
   "locale": "fr-CA",
   "pays": "Québec",
@@ -579,6 +743,7 @@
  },
  {
   "id": "fr-CH-ArianeNeural",
+  "extrait": "fr-CH-ArianeNeural.mp3",
   "langue": "fr",
   "locale": "fr-CH",
   "pays": "Suisse",
@@ -592,6 +757,7 @@
  },
  {
   "id": "fr-CH-FabriceNeural",
+  "extrait": "fr-CH-FabriceNeural.mp3",
   "langue": "fr",
   "locale": "fr-CH",
   "pays": "Suisse",
@@ -605,6 +771,7 @@
  },
  {
   "id": "fr-FR-DeniseNeural",
+  "extrait": "fr-FR-DeniseNeural.mp3",
   "langue": "fr",
   "locale": "fr-FR",
   "pays": "France",
@@ -617,20 +784,8 @@
   ]
  },
  {
-  "id": "fr-FR-EloiseNeural",
-  "langue": "fr",
-  "locale": "fr-FR",
-  "pays": "France",
-  "genre": "f",
-  "prenom": "Eloise",
-  "multilingue": false,
-  "personnalite": [
-   "Friendly",
-   "Positive"
-  ]
- },
- {
   "id": "fr-FR-HenriNeural",
+  "extrait": "fr-FR-HenriNeural.mp3",
   "langue": "fr",
   "locale": "fr-FR",
   "pays": "France",
@@ -644,6 +799,7 @@
  },
  {
   "id": "fr-FR-RemyMultilingualNeural",
+  "extrait": "fr-FR-RemyMultilingualNeural.mp3",
   "langue": "fr",
   "locale": "fr-FR",
   "pays": "France",
@@ -656,12 +812,195 @@
   ]
  },
  {
+  "id": "fr-FR-RemyMultilingualNeural",
+  "extrait": "fr-FR-RemyMultilingualNeural.es.mp3",
+  "langue": "es",
+  "locale": "fr-FR",
+  "pays": "accent français",
+  "genre": "h",
+  "prenom": "Remy",
+  "multilingue": true,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "fr-FR-RemyMultilingualNeural",
+  "extrait": "fr-FR-RemyMultilingualNeural.en.mp3",
+  "langue": "en",
+  "locale": "fr-FR",
+  "pays": "accent français",
+  "genre": "h",
+  "prenom": "Remy",
+  "multilingue": true,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
   "id": "fr-FR-VivienneMultilingualNeural",
+  "extrait": "fr-FR-VivienneMultilingualNeural.mp3",
   "langue": "fr",
   "locale": "fr-FR",
   "pays": "France",
   "genre": "f",
   "prenom": "Vivienne",
+  "multilingue": true,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "fr-FR-VivienneMultilingualNeural",
+  "extrait": "fr-FR-VivienneMultilingualNeural.es.mp3",
+  "langue": "es",
+  "locale": "fr-FR",
+  "pays": "accent français",
+  "genre": "f",
+  "prenom": "Vivienne",
+  "multilingue": true,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "fr-FR-VivienneMultilingualNeural",
+  "extrait": "fr-FR-VivienneMultilingualNeural.en.mp3",
+  "langue": "en",
+  "locale": "fr-FR",
+  "pays": "accent français",
+  "genre": "f",
+  "prenom": "Vivienne",
+  "multilingue": true,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "it-IT-GiuseppeMultilingualNeural",
+  "extrait": "it-IT-GiuseppeMultilingualNeural.fr.mp3",
+  "langue": "fr",
+  "locale": "it-IT",
+  "pays": "accent italien",
+  "genre": "h",
+  "prenom": "Giuseppe",
+  "multilingue": true,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "it-IT-GiuseppeMultilingualNeural",
+  "extrait": "it-IT-GiuseppeMultilingualNeural.es.mp3",
+  "langue": "es",
+  "locale": "it-IT",
+  "pays": "accent italien",
+  "genre": "h",
+  "prenom": "Giuseppe",
+  "multilingue": true,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "it-IT-GiuseppeMultilingualNeural",
+  "extrait": "it-IT-GiuseppeMultilingualNeural.en.mp3",
+  "langue": "en",
+  "locale": "it-IT",
+  "pays": "accent italien",
+  "genre": "h",
+  "prenom": "Giuseppe",
+  "multilingue": true,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "ko-KR-HyunsuMultilingualNeural",
+  "extrait": "ko-KR-HyunsuMultilingualNeural.fr.mp3",
+  "langue": "fr",
+  "locale": "ko-KR",
+  "pays": "accent coréen",
+  "genre": "h",
+  "prenom": "Hyunsu",
+  "multilingue": true,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "ko-KR-HyunsuMultilingualNeural",
+  "extrait": "ko-KR-HyunsuMultilingualNeural.es.mp3",
+  "langue": "es",
+  "locale": "ko-KR",
+  "pays": "accent coréen",
+  "genre": "h",
+  "prenom": "Hyunsu",
+  "multilingue": true,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "ko-KR-HyunsuMultilingualNeural",
+  "extrait": "ko-KR-HyunsuMultilingualNeural.en.mp3",
+  "langue": "en",
+  "locale": "ko-KR",
+  "pays": "accent coréen",
+  "genre": "h",
+  "prenom": "Hyunsu",
+  "multilingue": true,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "pt-BR-ThalitaMultilingualNeural",
+  "extrait": "pt-BR-ThalitaMultilingualNeural.fr.mp3",
+  "langue": "fr",
+  "locale": "pt-BR",
+  "pays": "accent portugais",
+  "genre": "f",
+  "prenom": "Thalita",
+  "multilingue": true,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "pt-BR-ThalitaMultilingualNeural",
+  "extrait": "pt-BR-ThalitaMultilingualNeural.es.mp3",
+  "langue": "es",
+  "locale": "pt-BR",
+  "pays": "accent portugais",
+  "genre": "f",
+  "prenom": "Thalita",
+  "multilingue": true,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "pt-BR-ThalitaMultilingualNeural",
+  "extrait": "pt-BR-ThalitaMultilingualNeural.en.mp3",
+  "langue": "en",
+  "locale": "pt-BR",
+  "pays": "accent portugais",
+  "genre": "f",
+  "prenom": "Thalita",
   "multilingue": true,
   "personnalite": [
    "Friendly",
