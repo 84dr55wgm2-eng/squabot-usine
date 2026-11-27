@@ -104,3 +104,13 @@ montrer ; l'analyse d'image (CLIP) rejette les photos hors sujet et passe alors 
 ## Exemple
 
 Voir `data/videos/2026-11-25-vol-joconde/video.json`.
+
+## Vidéos faites de clips réels (posts X)
+
+1. **Regarder avant d'écrire.** Lancer `regarder.yml` avec les liens des posts (ou `python -m squabot x regarder <liens>`),
+   puis ouvrir `data/x/vus/<id>/planche_1.jpg` (une image par seconde, minutée) et lire `vu.json` (paroles).
+2. **Le texte décrit ce qu'on voit.** Chaque phrase correspond à un passage précis du clip : jamais de détail
+   inventé à partir de la seule légende du post.
+3. **Un plan par passage.** Pour chaque phrase : `{"x": lien, "debut": secondes}` pris sur la planche, au moment
+   où l'action dite commence. Couper en deux plans dès que la phrase raconte deux moments (« … et quand elle revient »).
+4. La source est affichée automatiquement (« @compte sur X ») et citée dans la description.
