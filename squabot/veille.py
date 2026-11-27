@@ -51,7 +51,7 @@ def _reddit_rss(communaute, periode, n):
     racine = ET.fromstring(_get(f"https://www.reddit.com/r/{communaute}/top/.rss?t={periode}&limit={n}"))
     return [{"source": f"reddit/{communaute}", "titre": e.findtext("a:title", namespaces=ns),
              "lien": (e.find("a:link", ns).attrib.get("href") if e.find("a:link", ns) is not None else None),
-             "texte": re.sub(r"<[^>]+>", " ", e.findtext("a:content", default="", namespaces=ns))[:1500]}
+             "texte": re.sub(r"<[^>]+>", " ", e.findtext("a:content", default="", namespaces=ns))[:4000]}
             for e in racine.findall("a:entry", ns)]
 
 
@@ -61,7 +61,7 @@ def _reddit_arctic(communaute, periode, n):
         {"subreddit": communaute, "after": apres, "limit": 100, "sort": "desc"})))
     posts = sorted(d.get("data", []), key=lambda p: -(p.get("score") or 0))
     return [{"source": f"reddit/{communaute}", "titre": p.get("title"), "lien": "https://www.reddit.com" + (p.get("permalink") or ""),
-             "score": p.get("score"), "texte": (p.get("selftext") or "")[:1500]}
+             "score": p.get("score"), "texte": (p.get("selftext") or "")[:4000]}
             for p in posts if not p.get("over_18")][:n]
 
 
@@ -73,7 +73,7 @@ def _reddit_json(communaute, periode="day", n=10):
         if p.get("over_18") or p.get("stickied"): continue
         out.append({"source": f"reddit/{communaute}", "titre": p["title"], "lien": "https://www.reddit.com" + p["permalink"],
                     "score": p.get("score", 0), "commentaires": p.get("num_comments", 0),
-                    "texte": (p.get("selftext") or "")[:1500]})
+                    "texte": (p.get("selftext") or "")[:4000]})
     return out
 
 
