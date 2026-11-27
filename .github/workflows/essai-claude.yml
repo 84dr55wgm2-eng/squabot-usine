@@ -1,0 +1,16 @@
+# Vérifie que la clé Claude (CLAUDE_CODE_OAUTH_TOKEN) fonctionne, avec une toute petite question.
+name: Essai de la clé Claude
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  essai:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: "Réponds seulement : OK SQUABOT"
+          claude_args: "--max-turns 1"
