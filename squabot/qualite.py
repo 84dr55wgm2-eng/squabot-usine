@@ -22,7 +22,7 @@ def controler(v, autres=()):
     lignes = [l.strip() for l in script.split("\n") if l.strip()]
     n = len(script.split())
     c = config.comptes().get(v.get("compte"), {})
-    fmt = STRATEGIE["formats"]["short"]
+    fmt = STRATEGIE["durees"]["short"]
     if v.get("format", "short") == "short":
         lo, hi = fmt["mots"]
         if "tiktok" not in c.get("publier_sur", {}): lo = 110
@@ -48,10 +48,13 @@ def controler(v, autres=()):
     pos = sorted(set(pos)) + [n]
     for a, b in zip(pos, pos[1:]):
         if (b - a) / MOTS_SECONDE > 6: cons.append(f"plan de ~{(b - a) / MOTS_SECONDE:.0f} s vers « {' '.join(mots[a:a + 4])} » : couper en deux"); break
-    # variété (politique contenu inauthentique) : pas la même accroche ni le même titre que les vidéos récentes
+    # variété (politique contenu inauthentique) : voir variete.py
+    from .variete import comparer
+    b2, c2 = comparer(v, autres); bloq += b2; cons += c2
     debut = _debut(script)
     for o in list(autres)[-10:]:
         if debut and _debut(o.get("script") or "") == debut: cons.append(f"même début d'accroche que « {o.get('titre', '?')} » : varier"); break
+    if v.get("forme") and v["forme"] not in STRATEGIE["formats"]: cons.append(f"forme « {v['forme']} » inconnue")
     for o in autres:
         if o.get("titre", "").strip().lower() == titre.strip().lower(): bloq.append(f"titre identique à une vidéo existante"); break
     return bloq, cons

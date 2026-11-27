@@ -27,7 +27,7 @@ politiques:
   ia: "indiquer « contenu modifié ou synthétique » quand une image réaliste est générée"
   droits: "jamais d'extrait de film, de match, de stream ou de clip d'un autre créateur ; illustrations, photos libres, texte"
 
-formats:
+durees:
   short:
     duree_s: [62, 75]          # TikTok payé au-dessus de 61 s, Short YouTube jusqu'à 3 min
     mots: [165, 195]
@@ -53,6 +53,22 @@ sujets:
   angles_qui_cliquent: ["le jour où…", "personne ne sait pourquoi…", "le secret de…", "X choses que…", "ce qui s'est vraiment passé",
                         "chiffre impossible", "avant / après", "la vérité sur…"]
   eviter: ["sujet déjà traité par la chaîne", "drame d'une personne privée", "rumeur présentée comme un fait", "même accroche que les 10 dernières vidéos"]
+
+# Formes de vidéo : le bot en change d'une vidéo à l'autre (jamais 2 fois de suite la même, au moins 4 sur 10 vidéos).
+formats:
+  recit: "Une histoire racontée du début à la fin, avec suspense"
+  liste: "3 à 5 éléments classés, du moins fort au plus fort"
+  enquete: "Une question, les indices un par un, la réponse à la fin"
+  vrai_faux: "Une idée reçue, puis ce qui est vraiment vrai"
+  avant_apres: "Comment c'était, ce qui a tout changé, comment c'est maintenant"
+  chronologie: "Les dates clés qui s'enchaînent jusqu'au moment fou"
+  comparaison: "Deux choses face à face, chiffres à l'appui"
+  question: "Une question que tout le monde se pose, la réponse expliquée simplement"
+  portrait: "Une personne ou un lieu, ce qui le rend unique"
+  actu: "Ce qui vient de se passer, pourquoi c'est important, ce qui va suivre"
+
+# Types d'accroche à faire tourner
+accroches: [question, chiffre, scene, citation, affirmation_choc, defi]
 
 titre_miniature:
   titre_max_car: 60

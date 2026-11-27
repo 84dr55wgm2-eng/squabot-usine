@@ -35,6 +35,8 @@ de rétention et de sujets des plateformes), puis fais, dans l'ordre :
    aussi les « conseil » qu'il affiche (accroche trop longue, plan trop long, même début que les vidéos récentes).
 6 bis. **Compilation** : la compilation longue du dimanche (16:9) est montée seule à partir des Shorts de la semaine ;
    écris des sujets d'une même série quand c'est naturel, pour qu'elle se regarde d'une traite.
+6 ter. **Variété** : lance `python -m squabot variete` ; si une chaîne dépasse 35, écris ses prochaines vidéos dans
+   des formes et accroches qu'elle n'a pas utilisées récemment.
 7. **Journal** : écris `data/journal/<date>.md` en 5 lignes maximum (vidéos écrites, corrigées, sujets écartés et pourquoi).
 
 Ne pousse rien et ne modifie ni le code ni les workflows : l'étape suivante du workflow enregistre et lance la fabrication.

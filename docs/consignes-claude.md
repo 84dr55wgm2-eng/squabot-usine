@@ -28,8 +28,17 @@ GitHub Actions fabrique ensuite les vidéos seul.
 ## Ne pas être « contenu produit en masse »
 
 YouTube démonétise les chaînes dont les vidéos se ressemblent toutes (règle « contenu inauthentique »). Chaque vidéo doit
-avoir son angle, ses faits vérifiés et sa forme : varie l'accroche (question, chiffre, scène, citation), la structure
-(récit, liste, enquête, avant/après), le premier plan et la chute. Jamais deux vidéos de suite qui commencent pareil.
+avoir son angle, ses faits vérifiés et sa forme. Concrètement, dans `video.json` :
+
+- `"forme"` : une des formes de `squabot/strategie.yaml` (récit, liste, enquête, vrai/faux, avant/après, chronologie,
+  comparaison, question, portrait, actu). Jamais 3 fois de suite la même ; vise au moins 4 formes sur 10 vidéos.
+- Accroche : alterne question, chiffre, scène, citation, affirmation choc, défi.
+- Titre : pas le même modèle (« Le jour où… ») plus de 2 fois sur les 10 dernières vidéos.
+- Suite de plans : réorganise (ne commence pas toujours par un `titre`, place la `fiche` ou le `compteur` ailleurs).
+
+`python -m squabot verifier` mesure tout ça et bloque une vidéo trop proche des précédentes ;
+`python -m squabot variete` donne le risque de chaque chaîne (0-100 : < 35 sain, > 60 danger). L'habillage visuel
+(position et style des sous-titres, ordre des transitions, grain) change déjà seul d'une vidéo à l'autre.
 
 ## Rétention (voir `squabot/strategie.yaml`)
 

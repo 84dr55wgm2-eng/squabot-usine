@@ -42,6 +42,7 @@ class Rendu:
         self.impacts = [p["_tampon_t"] for p in self.plans if p.get("_tampon_t") is not None]
         self.rng = np.random.default_rng(1)
         self.flous = {}
+        self.habillage = self._habillage(video)
         g = [Image.fromarray(self.rng.normal(128, 18, (H // 2, W // 2)).clip(0, 255).astype("uint8")).resize((W, H)) for _ in range(6)]
         self.grain = [Image.merge("RGB", (x, x, x)) for x in g]
         yy, xx = np.mgrid[0:H, 0:W]
@@ -192,8 +193,15 @@ class Rendu:
                 txt = " ".join(self.mots[i]["w"].strip(".,!?;:«»\"") for i in g if self.mots[i]["s"] <= t + 0.02).upper()
                 cle = any(self.mots[i]["w"].strip(".,!?;:«»\"").lower() in self.cles for i in g)
                 k = rebond((t - s) / 0.12) if cle else 1
-                f = ajuste(txt, "noir", 96 * (0.85 + 0.15 * k))
-                texte(d, (W / 2, 1480), txt, f, self.OR if cle else (255, 255, 255), 9)
+                h = self.habillage; y = h["sous_titres_y"]
+                f = ajuste(txt, "noir", 96 * h["sous_titres_taille"] * (0.85 + 0.15 * k))
+                couleur = (self.OR if h["mot_cle"] == "or" else self.ACCENT) if cle else (255, 255, 255)
+                if h["sous_titres_style"] == "boite":
+                    x0, y0, x1, y1 = d.textbbox((W / 2, y), txt, font=f, anchor="mm")
+                    d.rounded_rectangle((x0 - 26, y0 - 18, x1 + 26, y1 + 18), radius=22, fill=(0, 0, 0))
+                    texte(d, (W / 2, y), txt, f, couleur, 0)
+                else:
+                    texte(d, (W / 2, y), txt, f, couleur, 9)
 
     # ---------- image finale ----------
     TRANSITIONS = ["zoom", "glisse", "flash", "coupe", "brulure", "zoom", "glisse", "coupe"]
@@ -208,13 +216,14 @@ class Rendu:
         p = self.plans[idx]
         k = (t - p["_debut"]) / self.DUREE_TR
         if idx > 0 and 0 <= k < 1:
-            sorte = p.get("transition", self.TRANSITIONS[idx % len(self.TRANSITIONS)])
+            tr = self.habillage["transitions"]
+            sorte = p.get("transition", tr[idx % len(tr)])
             if sorte != "coupe":
                 avant = Image.new("RGB", (W, H), self.FOND)
                 self.plan(self.plans[idx - 1], p["_debut"] - 0.001, avant)
                 im = self.transition(sorte, avant, im, k)
         im = Image.composite(im, Image.new("RGB", (W, H), (0, 0, 0)), self.vignette)
-        im = Image.blend(im, self.grain[int(t * FPS) % 6], 0.06)
+        im = Image.blend(im, self.grain[int(t * FPS) % 6], self.habillage["grain"])
         dx = dy = 0
         for s in self.impacts:
             if s <= t <= s + 0.35:

@@ -52,7 +52,7 @@ jobs:
           claude_args: >-
             --model ${{ steps.reglages.outputs.modele }}
             --max-turns ${{ steps.reglages.outputs.tours }}
-            --allowedTools "Read,Write,Edit,Glob,Grep,WebFetch,WebSearch,Bash(python -m squabot verifier),Bash(ls:*),Bash(date:*)"
+            --allowedTools "Read,Write,Edit,Glob,Grep,WebFetch,WebSearch,Bash(python -m squabot verifier),Bash(python -m squabot variete),Bash(ls:*),Bash(date:*)"
       - name: Enregistrer et lancer la fabrication
         if: steps.jeton.outputs.ok == 'oui'
         env: {GH_TOKEN: "${{ github.token }}"}
