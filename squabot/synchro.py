@@ -20,7 +20,8 @@ def _voix(d):
     profil = str(d.get("voix", ""))
     if profil.startswith("voxcpm:") and re.fullmatch(r"[a-z-]{3,40}", profil[7:]):
         # voix sur mesure VoxCPM2 (la plus naturelle) ; Edge en secours si le calcul échoue
-        return langue, {"modele": "voxcpm", "profil": profil[7:], "vitesse": vitesse, "secours": VOIX_DEFAUT[langue]}
+        secours = {"fr": "fr-FR-VivienneMultilingualNeural", "en": "en-US-AvaNeural", "es": "es-ES-ElviraNeural"} if "femme" in profil else VOIX_DEFAUT
+        return langue, {"modele": "voxcpm", "profil": profil[7:], "vitesse": vitesse, "secours": secours[langue]}
     return langue, {"modele": "edge", "voix": v, "vitesse": vitesse, "vitesse_kokoro": round(vitesse + 0.04, 2)}
 
 
