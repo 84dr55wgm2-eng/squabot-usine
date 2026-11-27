@@ -3,6 +3,7 @@ name: Essai de la clé Claude
 on: workflow_dispatch
 permissions:
   contents: read
+  id-token: write
 jobs:
   essai:
     runs-on: ubuntu-latest
