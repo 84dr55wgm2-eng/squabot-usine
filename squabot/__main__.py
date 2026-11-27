@@ -107,7 +107,8 @@ def compilations(minimum=8):
 def main(a):
     cmd = a[0] if a else "aide"
     if cmd == "verifier":
-        pb = config.problemes()
+        from .qualite import tout_controler
+        pb = config.problemes() + tout_controler()
         print("\n".join(pb) if pb else f"OK : {len(config.comptes())} comptes, {len(config.themes())} thèmes.")
         sys.exit(1 if pb else 0)
     elif cmd in ("fabriquer", "planche"):

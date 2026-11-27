@@ -1,0 +1,78 @@
+# Ce que le bot sait des plateformes : règles d'argent, de durée, de rétention et de sujets.
+# Lu par Claude pendant la tournée et par `python -m squabot verifier` (contrôles qualité).
+# Vérifié le 27/11/2026 (sources en bas). À revoir chaque trimestre : ces règles changent souvent.
+
+monetisation:
+  youtube:
+    entree_actuelle: "1 000 abonnés + 4 000 h de visionnage longues (12 mois) OU 10 M de vues Shorts (90 jours)"
+    entree_au_1er_fevrier_2027: "8 000 h OU 20 M de vues Shorts (90 jours) ; les chaînes déjà admises gardent leur place"
+    pub_shorts_2027: "les revenus des pubs Shorts seulement au-dessus de 10 M de vues Shorts sur 90 jours"
+    heures: "les vues dans le fil Shorts ne comptent pas dans les heures de visionnage"
+    conclusion: >
+      Les Shorts servent à se faire découvrir ; l'argent YouTube vient des vidéos longues (heures de visionnage, RPM 1,5-4 €).
+      Chaque chaîne publie donc aussi des vidéos longues (compilations, dossiers de 8-15 min).
+  tiktok:
+    programme: "Creator Rewards : 10 000 abonnés, 100 000 vues sur 30 jours, 18 ans, France éligible"
+    duree_min_s: 61
+    vue_payee: "vue d'au moins 5 s depuis le fil Pour toi, vidéo originale"
+    rpm_eur: [0.35, 0.9]
+  facebook: "monétisation des Reels sur invitation ; à activer quand le compte est relié"
+  x: "partage des revenus réservé aux abonnés payants : exclu (tout doit rester gratuit)"
+
+politiques:
+  contenu_inauthentique: >
+    YouTube retire du programme les chaînes de contenu « produit en masse », répétitif ou sur modèle, IA ou non
+    (16 chaînes supprimées en janvier 2026). Pour rester monétisable, chaque vidéo doit apporter quelque chose :
+    angle propre, recherche réelle, faits sourcés, structure et accroche différentes d'une vidéo à l'autre.
+  ia: "indiquer « contenu modifié ou synthétique » quand une image réaliste est générée"
+  droits: "jamais d'extrait de film, de match, de stream ou de clip d'un autre créateur ; illustrations, photos libres, texte"
+
+formats:
+  short:
+    duree_s: [62, 75]          # TikTok payé au-dessus de 61 s, Short YouTube jusqu'à 3 min
+    mots: [165, 195]
+    changement_visuel_max_s: 3
+    sous_titres: toujours
+  long:
+    duree_min: [8, 15]
+    par_semaine: 1             # compilation ou dossier, en 16:9
+
+retention:
+  - "Les 2 premières secondes décident : promesse concrète ou image choc, jamais d'introduction ni de « Salut »."
+  - "Première ligne : 12 mots maximum, une question, un chiffre ou une révélation."
+  - "Une relance toutes les 15 s environ (« Mais ce n'est pas le pire », « Sauf que… »)."
+  - "Garder la réponse pour la fin ; la dernière phrase peut renvoyer à la première (boucle) pour le revisionnage."
+  - "Rien d'immobile plus de 3 s : nouvelle image, zoom, texte animé."
+  - "Mesure clé : « vue » contre « balayée » ; au-dessus de 70 % de vues, le Short est poussé (estimation non officielle)."
+
+sujets:
+  priorite:
+    - "Buzz multi-plateformes du jour (data/tendances) qui colle au thème de la chaîne"
+    - "Actu chaude du thème (veille, score le plus haut)"
+    - "Sujets intemporels à fort potentiel quand rien ne buzze (records, mystères, « le jour où »)"
+  angles_qui_cliquent: ["le jour où…", "personne ne sait pourquoi…", "le secret de…", "X choses que…", "ce qui s'est vraiment passé",
+                        "chiffre impossible", "avant / après", "la vérité sur…"]
+  eviter: ["sujet déjà traité par la chaîne", "drame d'une personne privée", "rumeur présentée comme un fait", "même accroche que les 10 dernières vidéos"]
+
+titre_miniature:
+  titre_max_car: 60
+  regles:
+    - "Le titre promet ce que la vidéo tient ; curiosité oui, mensonge non."
+    - "3 à 5 mots forts en miniature, gros, contrastés, un seul visage ou objet."
+  description: "2 lignes de résumé, les sources, 3 à 5 hashtags dont #shorts pour YouTube"
+
+publication:
+  heures_fr: ["12:30", "18:00", "21:00"]   # pics d'audience courants ; à remplacer par les vraies stats de chaque chaîne
+  espacement_min_h: 3
+
+engagement:
+  - "Commentaire épinglé : une question simple liée à la vidéo."
+  - "Répondre la nuit aux commentaires utiles (questions, compléments) ; ignorer insultes et spam."
+
+sources_verifiees:
+  - https://www.tubefilter.com/2026/08/10/youtube-partner-program-ad-eligibility-requirements-shorts/
+  - https://www.mediapost.com/publications/article/417147/youtube-doubles-eligibility-requirements-for-creator
+  - https://support.google.com/youtube/answer/72851
+  - https://www.tubefilter.com/2026/07/13/youtube-inauthentic-content-monetization-policy-update/
+  - https://www.instantmonetize.com/guides/tiktok-creator-rewards/france
+  - https://outlierkit.com/resources/youtube-shorts-algorithm/
