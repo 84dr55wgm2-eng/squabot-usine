@@ -50,6 +50,18 @@ class Rendu:
         self.vignette = Image.fromarray((v.clip(0.25, 1) * 255).astype("uint8"))
         self._sous_titres()
 
+    # ---------- habillage propre à chaque vidéo (évite l'effet « même moule ») ----------
+    def _habillage(self, v):
+        """Tiré au sort à partir de l'identifiant de la vidéo (reproductible) ; `habillage` dans video.json l'emporte."""
+        import hashlib
+        r = np.random.default_rng(int(hashlib.md5(str(v.get("id", "")).encode()).hexdigest()[:8], 16))
+        tr = list(self.TRANSITIONS); r.shuffle(tr)
+        h = {"sous_titres_y": int(r.choice([1340, 1440, 1520])), "sous_titres_taille": float(r.choice([0.9, 1.0, 1.08])),
+             "sous_titres_style": str(r.choice(["contour", "boite", "contour"])), "mot_cle": str(r.choice(["or", "accent"])),
+             "transitions": tr, "grain": float(r.choice([0.04, 0.06, 0.08]))}
+        h.update(v.get("habillage") or {})
+        return h
+
     # ---------- éléments ----------
     def tampon(self, im, mot, t0, t, xy, taille=150, angle=-10):
         if t < t0: return
