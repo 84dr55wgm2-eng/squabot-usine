@@ -10,7 +10,18 @@ permissions:
 concurrency:
   group: veille
 jobs:
+  cle:
+    runs-on: ubuntu-latest
+    outputs:
+      ok: ${{ steps.c.outputs.ok }}
+    steps:
+      - id: c
+        env: {T: "${{ secrets.SQUABOT_TOKEN }}"}
+        run: |
+          if [ -z "$T" ]; then echo "Clé SQUABOT_TOKEN absente : rien à faire tant qu'elle n'est pas ajoutée (Settings → Secrets → Actions)."; echo "ok=non" >> $GITHUB_OUTPUT; else echo "ok=oui" >> $GITHUB_OUTPUT; fi
   veille:
+    needs: cle
+    if: needs.cle.outputs.ok == 'oui'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
