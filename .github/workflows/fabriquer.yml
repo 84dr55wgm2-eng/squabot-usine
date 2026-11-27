@@ -2,13 +2,18 @@
 name: Fabriquer les vidéos
 on:
   workflow_dispatch:
+    inputs:
+      seul:
+        description: "Identifiant d'une seule vidéo (fabriquées en parallèle)"
+        required: false
+        default: ""
   schedule:
     - cron: "*/30 * * * *"
 permissions:
   contents: write
   actions: write
 concurrency:
-  group: fabrication
+  group: fabrication-${{ inputs.seul }}
   cancel-in-progress: false
 jobs:
   cle:
@@ -79,6 +84,7 @@ jobs:
           GH_REPO: 84dr55wgm2-eng/squabot
         run: |
           python -m squabot a-fabriquer > tout.txt
+          if [ -n "${{ inputs.seul }}" ]; then grep "/${{ inputs.seul }}$" tout.txt > t2.txt || true; mv t2.txt tout.txt; fi
           head -n 8 tout.txt > liste.txt
           while read -r dossier; do
             [ -z "$dossier" ] && continue
@@ -103,6 +109,6 @@ jobs:
           for i in 1 2 3 4; do git pull --rebase -X theirs origin main && git push && exit 0; sleep $((i * 5)); done
           exit 1
       - name: Relancer s'il reste des vidéos
-        if: env.reste != '0' && env.reste != ''
+        if: env.reste != '0' && env.reste != '' && inputs.seul == ''
         env: {GH_TOKEN: "${{ github.token }}"}
         run: gh workflow run fabriquer.yml

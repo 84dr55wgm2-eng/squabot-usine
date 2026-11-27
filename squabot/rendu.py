@@ -249,7 +249,8 @@ class Rendu:
         e = ease(k)
         if sorte == "zoom":          # l'ancien plan grossit et s'efface : on « traverse » l'image
             z = 1 + 0.6 * e
-            a2 = a.resize((int(W * z), int(H * z)), Image.BILINEAR).crop((int((W * z - W) / 2), int((H * z - H) / 2), int((W * z + W) / 2), int((H * z + H) / 2)))
+            x0, y0 = int((W * z - W) / 2), int((H * z - H) / 2)
+            a2 = a.resize((int(W * z), int(H * z)), Image.BILINEAR).crop((x0, y0, x0 + W, y0 + H))
             return Image.blend(a2, b, min(1, e * 1.3))
         if sorte == "glisse":        # panoramique filé : l'ancien part à gauche, le nouveau arrive
             x = int(W * e); out = Image.new("RGB", (W, H))
