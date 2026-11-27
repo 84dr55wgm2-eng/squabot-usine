@@ -41,7 +41,7 @@ def abonnements(moi, conf=None):
 
 def comptes_suivis(conf=None):
     """{chaîne: [pseudos]} : sources/x.yaml, plus tous les abonnements du compte secondaire (« a-classer »)."""
-    f = config.DONNEES / "sources" / "x.yaml"
+    f = config.RACINE / "sources" / "x.yaml"
     c = yaml.safe_load(f.read_text()) if f.exists() else {}
     moi = c.pop("compte_bot", None)
     if moi:
@@ -95,7 +95,7 @@ def suivre():
             print(f"  @{ps} : {len(posts)} posts, {sum(1 for p in posts if p['medias'])} avec médias", flush=True)
             tout += posts
     tout.sort(key=lambda p: -p["buzz"])
-    sortie = config.DONNEES / "data" / "x" / f"{datetime.date.today()}.json"
+    sortie = config.RACINE / "data" / "x" / f"{datetime.date.today()}.json"
     sortie.parent.mkdir(parents=True, exist_ok=True)
     sortie.write_text(json.dumps(tout, ensure_ascii=False, indent=1))
     print(f"{len(tout)} posts → {sortie}", flush=True)
