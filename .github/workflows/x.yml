@@ -10,11 +10,12 @@ permissions:
 jobs:
   x:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     env:
       SQUABOT_DONNEES: donnees
       X_AUTH_TOKEN: ${{ secrets.X_AUTH_TOKEN }}
       X_CT0: ${{ secrets.X_CT0 }}
+      FASTEMBED_CACHE_PATH: /home/runner/.cache/fastembed
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
@@ -22,9 +23,11 @@ jobs:
           repository: 84dr55wgm2-eng/squabot
           token: ${{ secrets.SQUABOT_TOKEN }}
           path: donnees
+      - uses: actions/cache@v4
+        with: {path: /home/runner/.cache/fastembed, key: fastembed-v1}
       - uses: actions/setup-python@v5
         with: {python-version: "3.13", cache: pip}
-      - run: pip install -q PyYAML gallery-dl==1.32.21
+      - run: pip install -q PyYAML gallery-dl==1.32.21 fastembed==0.9.1
       - name: Lire les comptes
         run: python -m squabot x suivre
       - name: Essai de téléchargement (meilleur post avec vidéo)
@@ -33,7 +36,7 @@ jobs:
           [ -z "$u" ] && { echo "aucune vidéo"; exit 0; }
           python -m squabot x telecharger "$u" /tmp/essai >/dev/null
           ls -la /tmp/essai | tail -n +2 | awk '{print $5, $9}'
-          python -c "import json,glob;p=json.load(open(sorted(glob.glob('donnees/data/x/*.json'))[-1]));[print(x['buzz'],x['compte'],len(x['medias']),x['texte'][:70].replace(chr(10),' ')) for x in p[:12]]"
+          python -c "import json,glob;p=json.load(open(sorted(glob.glob('donnees/data/x/*.json'))[-1]));[print(x['buzz'],x.get('theme'),x['compte'],len(x['medias']),x['texte'][:70].replace(chr(10),' ')) for x in p[:12]]"
       - name: Enregistrer dans les données privées
         run: |
           cd donnees
