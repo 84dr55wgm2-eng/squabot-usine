@@ -261,7 +261,7 @@ def regarder(url):
     return vu
 
 
-def candidats(par_chaine=6, heures=72, regarder_aussi=True):
+def candidats(par_chaine=15, heures=96, regarder_aussi=True):
     """Pour chaque chaîne active : les meilleurs posts récents de son thème avec une vidéo, pas encore utilisés.
     Les regarde (planche + paroles) pour que le cerveau écrive d'après les images. → data/x/candidats/<date>.json"""
     dossier = config.RACINE / "data" / "x"
