@@ -27,15 +27,25 @@ def texte(locale):
     return TEXTES.get(locale) or TEXTES.get(locale[:2])
 
 
+EXCLUES = {"fr-FR-EloiseNeural"}          # voix d'enfant : pas pour nos chaînes
+ORIGINE = {"en": "anglais", "de": "allemand", "it": "italien", "es": "espagnol", "pt": "portugais", "fr": "français", "ko": "coréen", "ja": "japonais", "zh": "chinois"}
+
+
 async def main():
     voix = await edge_tts.list_voices()
     (SORTIE / "extraits").mkdir(parents=True, exist_ok=True)
     cat = []
+    taches = []
     for v in sorted(voix, key=lambda v: (v["Locale"], v["ShortName"])):
-        loc = v["Locale"]
-        if loc not in PAYS: continue
+        if v["ShortName"] in EXCLUES: continue
+        if v["Locale"] in PAYS: taches.append((v, v["Locale"], v["ShortName"]))
+        # voix multilingues d'autres pays : elles parlent aussi français et espagnol, avec un léger accent
+        if "Multilingual" in v["ShortName"]:
+            for l, loc in (("fr", "fr-FR"), ("es", "es-ES"), ("en", "en-US")):
+                if not v["Locale"].startswith(l): taches.append((v, loc, v["ShortName"] + "." + l))
+    for v, loc, cle in taches:
         nom = v["ShortName"]
-        mp3 = SORTIE / "extraits" / f"{nom}.mp3"
+        mp3 = SORTIE / "extraits" / f"{cle}.mp3"
         if not mp3.exists():
             tmp = mp3.with_suffix(".tmp.mp3")
             try:
@@ -46,7 +56,9 @@ async def main():
             finally:
                 tmp.unlink(missing_ok=True)
         tag = v.get("VoiceTag") or {}
-        cat.append({"id": nom, "langue": loc[:2], "locale": loc, "pays": PAYS[loc], "genre": "f" if v["Gender"] == "Female" else "h",
+        etranger = not v["Locale"].startswith(loc[:2])
+        cat.append({"id": nom, "extrait": f"{cle}.mp3", "langue": loc[:2], "locale": v["Locale"] if etranger else loc,
+                    "pays": f"accent {ORIGINE.get(v['Locale'][:2], v['Locale'])}" if etranger else PAYS[loc], "genre": "f" if v["Gender"] == "Female" else "h",
                     "prenom": nom.split("-")[2].replace("MultilingualNeural", "").replace("Neural", ""),
                     "multilingue": "Multilingual" in nom, "personnalite": tag.get("VoicePersonalities", [])})
         print(nom, loc, v["Gender"], tag.get("VoicePersonalities"))
