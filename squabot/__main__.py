@@ -6,6 +6,7 @@
   python -m squabot compilations [n]          vidéo longue YouTube dès qu'un compte a n vidéos prêtes (8 par défaut)
   python -m squabot synchroniser <dossier>     crée les comptes demandés dans l'appli (documents exportés)
   python -m squabot connecter <réseau> <compte>   brancher un compte (sur ton Mac, une seule fois)
+  python -m squabot tendances [fr en es]      le buzz du moment sur toutes les plateformes (data/tendances/)
   python -m squabot veille                    collecte les sujets frais de chaque thème actif (data/veille/)
   python -m squabot index                     met à jour data/index.json pour le tableau de bord
 """
@@ -123,6 +124,9 @@ def main(a):
         connecter(a[1:])
     elif cmd == "compilations":
         compilations(int(a[1]) if len(a) > 1 else 8)
+    elif cmd == "tendances":
+        from .tendances import tout as tendances
+        tendances(a[1:] or None)
     elif cmd == "veille":
         from .veille import tout_veiller
         tout_veiller()

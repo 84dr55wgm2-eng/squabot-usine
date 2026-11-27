@@ -1,0 +1,45 @@
+name: Tendances du moment
+# Le buzz toutes plateformes, toutes les 3 heures. Sans la clé SQUABOT_TOKEN, le résultat reste visible dans le
+# résumé et en pièce jointe du run, sans être enregistré.
+on:
+  schedule: [{cron: "23 */3 * * *"}]
+  workflow_dispatch:
+permissions: {contents: read}
+concurrency: {group: tendances, cancel-in-progress: false}
+jobs:
+  tendances:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      T: ${{ secrets.SQUABOT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Données privées
+        if: env.T != ''
+        uses: actions/checkout@v4
+        with:
+          repository: 84dr55wgm2-eng/squabot
+          token: ${{ secrets.SQUABOT_TOKEN }}
+          path: donnees
+      - name: Dossier
+        run: |
+          if [ -d donnees ]; then echo "SQUABOT_DONNEES=donnees" >> $GITHUB_ENV; else mkdir -p essai/data && echo "SQUABOT_DONNEES=essai" >> $GITHUB_ENV; fi
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.13", cache: pip}
+      - run: pip install PyYAML==6.0.3
+      - name: Buzz
+        run: |
+          python -m squabot tendances $( [ -d donnees ] || echo fr ) | tee sortie.txt
+          { echo '```'; cat sortie.txt; echo '```'; } >> $GITHUB_STEP_SUMMARY
+      - uses: actions/upload-artifact@v4
+        with: {name: tendances, path: "${{ env.SQUABOT_DONNEES }}/data/tendances/", retention-days: 7}
+      - name: Enregistrer dans les données privées
+        if: env.T != ''
+        run: |
+          cd donnees
+          git config user.name squabot && git config user.email squabot@users.noreply.github.com
+          git add -A data/tendances
+          git diff --cached --quiet && exit 0
+          git commit -m "Tendances du moment [skip ci]"
+          for i in 1 2 3 4; do git pull --rebase -X theirs origin main && git push && exit 0; sleep $((i * 5)); done
+          exit 1

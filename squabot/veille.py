@@ -11,8 +11,14 @@ from . import config
 UA = {"User-Agent": "squabot/0.2 (veille de sujets pour une chaine video)"}
 
 
-def _get(url, timeout=30):
-    with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=timeout) as r:
+NAVIGATEUR = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15",
+              "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.6"}
+
+
+def _get(url, timeout=30, entetes=None):
+    h = dict(NAVIGATEUR if entetes is not None or not any(d in url for d in ("wikimedia.org", "wikipedia.org", "reddit.com/r/")) else UA)
+    h.update(entetes or {})
+    with urllib.request.urlopen(urllib.request.Request(url, headers=h), timeout=timeout) as r:
         return r.read()
 
 
@@ -153,8 +159,39 @@ def veiller(theme_id, theme, extra=None):
     for x in tout:
         cle = re.sub(r"\W+", "", (x.get("titre") or "").lower())[:80]
         if cle and cle not in vus: vus.add(cle); uniques.append(x)
+    noter(uniques, langue, theme)
     return {"theme": theme_id, "date": dt.datetime.utcnow().isoformat(timespec="minutes") + "Z",
             "candidats": uniques, "erreurs": erreurs}
+
+
+def buzz_du_jour(langue):
+    """Sujets chauds du jour (calculés par tendances.py), ou rien."""
+    import glob
+    f = sorted(glob.glob(str(config.RACINE / "data" / "tendances" / "*.json")))
+    if not f: return []
+    return json.loads(open(f[-1]).read()).get("langues", {}).get(langue, {}).get("sujets", [])
+
+
+def noter(candidats, langue, theme):
+    """Score de chaque sujet : buzz du moment (recoupement avec les tendances), popularité, fraîcheur, adéquation au thème.
+    Les meilleurs d'abord. Le détail reste visible pour que Claude comprenne le choix."""
+    import math
+    from .tendances import mots
+    chauds = [(set(t["mots"]), t["score"], t["sujet"]) for t in buzz_du_jour(langue)[:60]]
+    cles_theme = set().union(*[mots(m) for m in theme.get("mots_cles", [])]) if theme.get("mots_cles") else set()
+    for c in candidats:
+        m = mots(c.get("titre", "") + " " + c.get("resume", ""))
+        buzz, lie = 0.0, None
+        for tm, sc, sujet in chauds:
+            commun = len(m & tm)
+            if commun >= 2 or (commun == 1 and len(tm) <= 2):
+                if sc > buzz: buzz, lie = sc, sujet
+        pop = math.log10(1 + (c.get("vues") or 0)) / 2            # 1 M de vues -> 3
+        frais = 1.0 if c.get("source", "").startswith(("google-actus", "reddit", "rss", "wikipedia-plus-lus")) else 0.4
+        theme_ok = 1.0 if m & cles_theme else 0.0
+        c["score"] = round(buzz + pop + frais + theme_ok, 2)
+        c["pourquoi"] = {"buzz": round(buzz, 2), "tendance": lie, "popularite": round(pop, 2), "frais": frais, "theme": theme_ok}
+    candidats.sort(key=lambda c: -c["score"])
 
 
 def tout_veiller():
