@@ -19,23 +19,27 @@ def synthese_edge(texte, sortie, voix="fr-FR-HenriNeural", vitesse=1.05):
     return sf.info(str(sortie)).duration
 
 
-def synthese_auto(texte, sortie, reglage):
+KOKORO = {"fr": ("ff_siwis", "fr-fr"), "en": ("af_heart", "en-us"), "es": ("ef_dora", "es")}
+
+
+def synthese_auto(texte, sortie, reglage, langue="fr"):
     """Voix choisie pour le compte ; si c'est Edge et que le service refuse, repli sur Kokoro (jamais d'arrêt)."""
     if reglage.get("modele") == "edge":
         try:
             return synthese_edge(texte, sortie, reglage.get("voix", "fr-FR-HenriNeural"), reglage.get("vitesse", 1.05)), "edge"
         except Exception as e:
             print("  voix Edge indisponible, repli sur Kokoro :", str(e)[:120], flush=True)
-    return synthese(texte, sortie, reglage.get("voix_kokoro", "ff_siwis") if reglage.get("modele") == "edge" else reglage.get("voix", "ff_siwis"),
-                    reglage.get("vitesse_kokoro", 1.1)), "kokoro"
+    defaut, lang = KOKORO.get(langue, KOKORO["fr"])
+    return synthese(texte, sortie, reglage.get("voix_kokoro", defaut) if reglage.get("modele") == "edge" else reglage.get("voix", defaut),
+                    reglage.get("vitesse_kokoro", 1.1), lang), "kokoro"
 
 
-def synthese(texte, sortie, voix="ff_siwis", vitesse=1.1):
+def synthese(texte, sortie, voix="ff_siwis", vitesse=1.1, lang="fr-fr"):
     from kokoro_onnx import Kokoro
     k = Kokoro(modeles.chemin("kokoro.onnx"), modeles.chemin("voices.bin"))
     morceaux, sr = [], 24000
     for ligne in [l.strip() for l in texte.strip().split("\n") if l.strip()]:
-        a, sr = k.create(ligne, voice=voix, speed=vitesse, lang="fr-fr")
+        a, sr = k.create(ligne, voice=voix, speed=vitesse, lang=lang)
         morceaux += [a, np.zeros(int(sr * PAUSE), dtype=a.dtype)]
     audio = np.concatenate(morceaux)
     sf.write(sortie, audio, sr)
@@ -46,7 +50,7 @@ def _norm(s):
     return re.sub(r"[^a-z0-9]", "", unicodedata.normalize("NFD", s.lower()))
 
 
-def calage(wav, texte, modele="small"):
+def calage(wav, texte, modele="small", langue="fr"):
     """Renvoie [{w, s, e}] pour chaque mot du script (le script fait foi, Whisper donne les temps)."""
     from faster_whisper import WhisperModel
     a, sr = sf.read(wav, dtype="float32")
@@ -54,7 +58,7 @@ def calage(wav, texte, modele="small"):
     if sr != 16000:
         a = np.interp(np.arange(0, len(a), sr / 16000), np.arange(len(a)), a).astype("float32")
     m = WhisperModel(modele, device="cpu", compute_type="int8")
-    segs, _ = m.transcribe(a, language="fr", word_timestamps=True)
+    segs, _ = m.transcribe(a, language=langue, word_timestamps=True)
     W = [{"w": w.word.strip(), "s": w.start, "e": w.end} for s in segs for w in s.words]
     # alignement caractère par caractère entre le script et la transcription
     script = texte.split()

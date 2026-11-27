@@ -16,8 +16,12 @@ def _get(url, timeout=30):
         return r.read()
 
 
+PAYS = {"fr": "FR", "en": "US", "es": "ES"}
+
+
 def google_actus(requete, langue="fr", n=10):
-    url = "https://news.google.com/rss/search?" + urllib.parse.urlencode({"q": requete + " when:7d", "hl": langue, "gl": "FR", "ceid": "FR:fr"})
+    pays = PAYS.get(langue, "FR")
+    url = "https://news.google.com/rss/search?" + urllib.parse.urlencode({"q": requete + " when:7d", "hl": langue, "gl": pays, "ceid": f"{pays}:{langue}"})
     out = []
     for it in ET.fromstring(_get(url)).iter("item"):
         out.append({"source": "google-actus", "titre": it.findtext("title"), "lien": it.findtext("link"),
@@ -83,9 +87,9 @@ def wikipedia_plus_lus(langue="fr", n=25):
             for a in arts[:n] if ":" not in (a.get("title") or "")]
 
 
-def youtube(requete, n=10):
+def youtube(requete, n=10, langue="fr"):
     """Ce qui marche déjà sur YouTube pour ce sujet : titres, vues, durées (aucun téléchargement de vidéo)."""
-    r = subprocess.run(["yt-dlp", "--flat-playlist", "--dump-json", "--no-warnings", "--extractor-args", "youtube:lang=fr", f"ytsearch{n}:{requete}"],
+    r = subprocess.run(["yt-dlp", "--flat-playlist", "--dump-json", "--no-warnings", "--extractor-args", f"youtube:lang={langue}", f"ytsearch{n}:{requete}"],
                        capture_output=True, text=True, timeout=120)
     out = []
     for ligne in r.stdout.splitlines():
@@ -129,20 +133,22 @@ def veiller(theme_id, theme, extra=None):
         except Exception as e: erreurs.append(f"{nom} : {str(e)[:120]}")
         time.sleep(1.5)
     extra = extra or {}
+    langue = extra.get("langue", "fr")
     for s in theme.get("sources", []) + extra.get("sources", []):
         if s.get("type") == "reddit":
             for c in s.get("communautes", []): essai(f"reddit/{c}", reddit, c)
         elif s.get("type") == "wikipedia-ce-jour-la":
-            essai("wikipedia-ce-jour", wikipedia_ce_jour)
+            essai("wikipedia-ce-jour", wikipedia_ce_jour, langue)
         elif s.get("type") == "wikipedia-article":
-            essai("wikipedia-plus-lus", wikipedia_plus_lus)
+            essai("wikipedia-plus-lus", wikipedia_plus_lus, langue)
         elif s.get("type") == "rss":
             essai(f"rss/{s['url'][:40]}", rss, s["url"])
         elif s.get("type") == "youtube-chaine":
             essai(f"youtube-chaine/{s['chaine']}", youtube_chaine, s["chaine"])
-    for m in theme.get("mots_cles", []) + extra.get("mots_cles", []):
-        essai(f"google/{m}", google_actus, m)
-        essai(f"youtube/{m}", youtube, m)
+    # mots-clés du thème dans la langue de la chaîne (mots_cles_en, mots_cles_es…), sinon ceux en français
+    for m in theme.get(f"mots_cles_{langue}", theme.get("mots_cles", [])) + extra.get("mots_cles", []):
+        essai(f"google/{m}", google_actus, m, langue)
+        essai(f"youtube/{m}", youtube, m, 10, langue)
     vus, uniques = set(), []
     for x in tout:
         cle = re.sub(r"\W+", "", (x.get("titre") or "").lower())[:80]
