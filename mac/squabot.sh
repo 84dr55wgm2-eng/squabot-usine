@@ -1,7 +1,7 @@
 #!/bin/bash
 # Squabot sur le Mac : préparer (une fois) et relier les chaînes YouTube.
 # Lancer depuis le Terminal :
-#   curl -fsSL https://raw.githubusercontent.com/84dr55wgm2-eng/squabot-usine/main/mac/squabot.sh -o /tmp/squabot.sh && bash /tmp/squabot.sh
+#   curl -fsSL -H "Accept: application/vnd.github.raw" https://api.github.com/repos/84dr55wgm2-eng/squabot-usine/contents/mac/squabot.sh -o /tmp/squabot.sh && bash /tmp/squabot.sh
 # Rien n'est envoyé ailleurs que chez GitHub et Google. Les clés restent dans le trousseau du Mac et dans les
 # secrets chiffrés de GitHub.
 set -u
@@ -37,9 +37,9 @@ outils() {
   else
     mkdir -p "$DOSSIER/.gh"; local arch="amd64"; [ "$(uname -m)" = "arm64" ] && arch="arm64"
     local url; url=$(curl -fsSL https://api.github.com/repos/cli/cli/releases/latest | grep -o "https://[^\"]*macOS_${arch}\.zip" | head -1)
-    [ -n "$url" ] || stop "Téléchargement de l'outil GitHub impossible."
+    [ -n "$url" ] || stop "Téléchargement de l'outil GitHub impossible (réseau filtré ? essaie le partage de connexion du téléphone)."
     curl -fsSL "$url" -o "$DOSSIER/.gh/gh.zip" && (cd "$DOSSIER/.gh" && unzip -qo gh.zip && rm gh.zip && mv gh_*/* . && rmdir gh_* 2>/dev/null)
-    GH="$DOSSIER/.gh/bin/gh"; [ -x "$GH" ] || stop "Installation de l'outil GitHub impossible."
+    GH="$DOSSIER/.gh/bin/gh"; [ -x "$GH" ] || stop "Installation de l'outil GitHub impossible (réseau filtré ? essaie le partage de connexion du téléphone)."
   fi
   ok "outil GitHub ($("$GH" --version | head -1))"
   if ! "$GH" auth status >/dev/null 2>&1; then
