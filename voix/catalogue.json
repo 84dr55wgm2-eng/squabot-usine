@@ -1,0 +1,671 @@
+[
+ {
+  "id": "en-AU-NatashaNeural",
+  "langue": "en",
+  "locale": "en-AU",
+  "pays": "Australie",
+  "genre": "f",
+  "prenom": "Natasha",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "en-AU-WilliamMultilingualNeural",
+  "langue": "en",
+  "locale": "en-AU",
+  "pays": "Australie",
+  "genre": "h",
+  "prenom": "William",
+  "multilingue": true,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "en-CA-ClaraNeural",
+  "langue": "en",
+  "locale": "en-CA",
+  "pays": "Canada",
+  "genre": "f",
+  "prenom": "Clara",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "en-CA-LiamNeural",
+  "langue": "en",
+  "locale": "en-CA",
+  "pays": "Canada",
+  "genre": "h",
+  "prenom": "Liam",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "en-GB-LibbyNeural",
+  "langue": "en",
+  "locale": "en-GB",
+  "pays": "Royaume-Uni",
+  "genre": "f",
+  "prenom": "Libby",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "en-GB-MaisieNeural",
+  "langue": "en",
+  "locale": "en-GB",
+  "pays": "Royaume-Uni",
+  "genre": "f",
+  "prenom": "Maisie",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "en-GB-RyanNeural",
+  "langue": "en",
+  "locale": "en-GB",
+  "pays": "Royaume-Uni",
+  "genre": "h",
+  "prenom": "Ryan",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "en-GB-SoniaNeural",
+  "langue": "en",
+  "locale": "en-GB",
+  "pays": "Royaume-Uni",
+  "genre": "f",
+  "prenom": "Sonia",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "en-GB-ThomasNeural",
+  "langue": "en",
+  "locale": "en-GB",
+  "pays": "Royaume-Uni",
+  "genre": "h",
+  "prenom": "Thomas",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "en-IE-ConnorNeural",
+  "langue": "en",
+  "locale": "en-IE",
+  "pays": "Irlande",
+  "genre": "h",
+  "prenom": "Connor",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "en-IE-EmilyNeural",
+  "langue": "en",
+  "locale": "en-IE",
+  "pays": "Irlande",
+  "genre": "f",
+  "prenom": "Emily",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "en-US-AnaNeural",
+  "langue": "en",
+  "locale": "en-US",
+  "pays": "États-Unis",
+  "genre": "f",
+  "prenom": "Ana",
+  "multilingue": false,
+  "personnalite": [
+   "Cute"
+  ]
+ },
+ {
+  "id": "en-US-AndrewNeural",
+  "langue": "en",
+  "locale": "en-US",
+  "pays": "États-Unis",
+  "genre": "h",
+  "prenom": "Andrew",
+  "multilingue": false,
+  "personnalite": [
+   "Warm",
+   "Confident",
+   "Authentic",
+   "Honest"
+  ]
+ },
+ {
+  "id": "en-US-AriaNeural",
+  "langue": "en",
+  "locale": "en-US",
+  "pays": "États-Unis",
+  "genre": "f",
+  "prenom": "Aria",
+  "multilingue": false,
+  "personnalite": [
+   "Positive",
+   "Confident"
+  ]
+ },
+ {
+  "id": "en-US-AvaMultilingualNeural",
+  "langue": "en",
+  "locale": "en-US",
+  "pays": "États-Unis",
+  "genre": "f",
+  "prenom": "Ava",
+  "multilingue": true,
+  "personnalite": [
+   "Expressive",
+   "Caring",
+   "Pleasant",
+   "Friendly"
+  ]
+ },
+ {
+  "id": "en-US-AvaNeural",
+  "langue": "en",
+  "locale": "en-US",
+  "pays": "États-Unis",
+  "genre": "f",
+  "prenom": "Ava",
+  "multilingue": false,
+  "personnalite": [
+   "Expressive",
+   "Caring",
+   "Pleasant",
+   "Friendly"
+  ]
+ },
+ {
+  "id": "en-US-BrianMultilingualNeural",
+  "langue": "en",
+  "locale": "en-US",
+  "pays": "États-Unis",
+  "genre": "h",
+  "prenom": "Brian",
+  "multilingue": true,
+  "personnalite": [
+   "Approachable",
+   "Casual",
+   "Sincere"
+  ]
+ },
+ {
+  "id": "en-US-BrianNeural",
+  "langue": "en",
+  "locale": "en-US",
+  "pays": "États-Unis",
+  "genre": "h",
+  "prenom": "Brian",
+  "multilingue": false,
+  "personnalite": [
+   "Approachable",
+   "Casual",
+   "Sincere"
+  ]
+ },
+ {
+  "id": "en-US-ChristopherNeural",
+  "langue": "en",
+  "locale": "en-US",
+  "pays": "États-Unis",
+  "genre": "h",
+  "prenom": "Christopher",
+  "multilingue": false,
+  "personnalite": [
+   "Reliable",
+   "Authority"
+  ]
+ },
+ {
+  "id": "en-US-EmmaMultilingualNeural",
+  "langue": "en",
+  "locale": "en-US",
+  "pays": "États-Unis",
+  "genre": "f",
+  "prenom": "Emma",
+  "multilingue": true,
+  "personnalite": [
+   "Cheerful",
+   "Clear",
+   "Conversational"
+  ]
+ },
+ {
+  "id": "en-US-EmmaNeural",
+  "langue": "en",
+  "locale": "en-US",
+  "pays": "États-Unis",
+  "genre": "f",
+  "prenom": "Emma",
+  "multilingue": false,
+  "personnalite": [
+   "Cheerful",
+   "Clear",
+   "Conversational"
+  ]
+ },
+ {
+  "id": "en-US-EricNeural",
+  "langue": "en",
+  "locale": "en-US",
+  "pays": "États-Unis",
+  "genre": "h",
+  "prenom": "Eric",
+  "multilingue": false,
+  "personnalite": [
+   "Rational"
+  ]
+ },
+ {
+  "id": "en-US-GuyNeural",
+  "langue": "en",
+  "locale": "en-US",
+  "pays": "États-Unis",
+  "genre": "h",
+  "prenom": "Guy",
+  "multilingue": false,
+  "personnalite": [
+   "Passion"
+  ]
+ },
+ {
+  "id": "en-US-JennyNeural",
+  "langue": "en",
+  "locale": "en-US",
+  "pays": "États-Unis",
+  "genre": "f",
+  "prenom": "Jenny",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Considerate",
+   "Comfort"
+  ]
+ },
+ {
+  "id": "en-US-MichelleNeural",
+  "langue": "en",
+  "locale": "en-US",
+  "pays": "États-Unis",
+  "genre": "f",
+  "prenom": "Michelle",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Pleasant"
+  ]
+ },
+ {
+  "id": "en-US-RogerNeural",
+  "langue": "en",
+  "locale": "en-US",
+  "pays": "États-Unis",
+  "genre": "h",
+  "prenom": "Roger",
+  "multilingue": false,
+  "personnalite": [
+   "Lively"
+  ]
+ },
+ {
+  "id": "en-US-SteffanNeural",
+  "langue": "en",
+  "locale": "en-US",
+  "pays": "États-Unis",
+  "genre": "h",
+  "prenom": "Steffan",
+  "multilingue": false,
+  "personnalite": [
+   "Rational"
+  ]
+ },
+ {
+  "id": "es-AR-ElenaNeural",
+  "langue": "es",
+  "locale": "es-AR",
+  "pays": "Argentine",
+  "genre": "f",
+  "prenom": "Elena",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "es-AR-TomasNeural",
+  "langue": "es",
+  "locale": "es-AR",
+  "pays": "Argentine",
+  "genre": "h",
+  "prenom": "Tomas",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "es-CO-GonzaloNeural",
+  "langue": "es",
+  "locale": "es-CO",
+  "pays": "Colombie",
+  "genre": "h",
+  "prenom": "Gonzalo",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "es-CO-SalomeNeural",
+  "langue": "es",
+  "locale": "es-CO",
+  "pays": "Colombie",
+  "genre": "f",
+  "prenom": "Salome",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "es-ES-AlvaroNeural",
+  "langue": "es",
+  "locale": "es-ES",
+  "pays": "Espagne",
+  "genre": "h",
+  "prenom": "Alvaro",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "es-ES-ElviraNeural",
+  "langue": "es",
+  "locale": "es-ES",
+  "pays": "Espagne",
+  "genre": "f",
+  "prenom": "Elvira",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "es-ES-XimenaNeural",
+  "langue": "es",
+  "locale": "es-ES",
+  "pays": "Espagne",
+  "genre": "f",
+  "prenom": "Ximena",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "es-MX-DaliaNeural",
+  "langue": "es",
+  "locale": "es-MX",
+  "pays": "Mexique",
+  "genre": "f",
+  "prenom": "Dalia",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "es-MX-JorgeNeural",
+  "langue": "es",
+  "locale": "es-MX",
+  "pays": "Mexique",
+  "genre": "h",
+  "prenom": "Jorge",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "es-US-AlonsoNeural",
+  "langue": "es",
+  "locale": "es-US",
+  "pays": "États-Unis",
+  "genre": "h",
+  "prenom": "Alonso",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "es-US-PalomaNeural",
+  "langue": "es",
+  "locale": "es-US",
+  "pays": "États-Unis",
+  "genre": "f",
+  "prenom": "Paloma",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "fr-BE-CharlineNeural",
+  "langue": "fr",
+  "locale": "fr-BE",
+  "pays": "Belgique",
+  "genre": "f",
+  "prenom": "Charline",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "fr-BE-GerardNeural",
+  "langue": "fr",
+  "locale": "fr-BE",
+  "pays": "Belgique",
+  "genre": "h",
+  "prenom": "Gerard",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "fr-CA-AntoineNeural",
+  "langue": "fr",
+  "locale": "fr-CA",
+  "pays": "Québec",
+  "genre": "h",
+  "prenom": "Antoine",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "fr-CA-JeanNeural",
+  "langue": "fr",
+  "locale": "fr-CA",
+  "pays": "Québec",
+  "genre": "h",
+  "prenom": "Jean",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "fr-CA-SylvieNeural",
+  "langue": "fr",
+  "locale": "fr-CA",
+  "pays": "Québec",
+  "genre": "f",
+  "prenom": "Sylvie",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "fr-CA-ThierryNeural",
+  "langue": "fr",
+  "locale": "fr-CA",
+  "pays": "Québec",
+  "genre": "h",
+  "prenom": "Thierry",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "fr-CH-ArianeNeural",
+  "langue": "fr",
+  "locale": "fr-CH",
+  "pays": "Suisse",
+  "genre": "f",
+  "prenom": "Ariane",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "fr-CH-FabriceNeural",
+  "langue": "fr",
+  "locale": "fr-CH",
+  "pays": "Suisse",
+  "genre": "h",
+  "prenom": "Fabrice",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "fr-FR-DeniseNeural",
+  "langue": "fr",
+  "locale": "fr-FR",
+  "pays": "France",
+  "genre": "f",
+  "prenom": "Denise",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "fr-FR-EloiseNeural",
+  "langue": "fr",
+  "locale": "fr-FR",
+  "pays": "France",
+  "genre": "f",
+  "prenom": "Eloise",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "fr-FR-HenriNeural",
+  "langue": "fr",
+  "locale": "fr-FR",
+  "pays": "France",
+  "genre": "h",
+  "prenom": "Henri",
+  "multilingue": false,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "fr-FR-RemyMultilingualNeural",
+  "langue": "fr",
+  "locale": "fr-FR",
+  "pays": "France",
+  "genre": "h",
+  "prenom": "Remy",
+  "multilingue": true,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ },
+ {
+  "id": "fr-FR-VivienneMultilingualNeural",
+  "langue": "fr",
+  "locale": "fr-FR",
+  "pays": "France",
+  "genre": "f",
+  "prenom": "Vivienne",
+  "multilingue": true,
+  "personnalite": [
+   "Friendly",
+   "Positive"
+  ]
+ }
+]
