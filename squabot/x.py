@@ -31,9 +31,10 @@ def abonnements(moi, conf=None):
     pseudos = []
     try:
         for e in json.loads(r.stdout or "[]"):
-            if isinstance(e, list) and len(e) >= 2 and isinstance(e[1], str) and "x.com/" in e[1].replace("twitter.com/", "x.com/"):
-                ps = e[1].replace("twitter.com/", "x.com/").split("x.com/")[1].split("/")[0]
-                if ps and ps not in ("i", moi) and ps not in pseudos: pseudos.append(ps)
+            if isinstance(e, list) and len(e) >= 3 and e[0] == 6 and isinstance(e[2], dict):
+                u = e[2].get("user") if isinstance(e[2].get("user"), dict) else e[2]
+                ps = u.get("name") or e[1].split("x.com/")[-1]        # pseudo, sinon « i/user/<id> »
+                if ps and ps != moi and ps not in pseudos: pseudos.append(ps)
     except json.JSONDecodeError: pass
     if not pseudos: print(f"  abonnements de @{moi} illisibles ({(r.stderr.strip().splitlines() or ['?'])[-1][:160]})", flush=True)
     return pseudos
@@ -55,7 +56,7 @@ def comptes_suivis(conf=None):
 def lire_compte(pseudo, n=25, conf=None):
     """Derniers posts d'un compte : texte, date, stats, médias."""
     conf = conf or _conf()
-    r = subprocess.run(["gallery-dl", "--config", conf, "-j", "--range", f"1-{n}", f"https://x.com/{pseudo}"],
+    r = subprocess.run(["gallery-dl", "--config", conf, "-j", "--range", f"1-{n}", f"https://x.com/{pseudo}/tweets"],
                        capture_output=True, text=True, timeout=300)
     if r.returncode not in (0, 4) or not r.stdout.strip():
         print(f"  @{pseudo} : lecture impossible ({(r.stderr.strip().splitlines() or ['?'])[-1][:160]})", flush=True)
@@ -67,7 +68,7 @@ def lire_compte(pseudo, n=25, conf=None):
         tid = str(m.get("tweet_id") or "")
         if not tid: continue
         p = posts.setdefault(tid, {
-            "id": tid, "compte": pseudo, "url": f"https://x.com/{pseudo}/status/{tid}",
+            "id": tid, "compte": (m.get("author") or {}).get("name", pseudo), "url": f"https://x.com/{(m.get('author') or {}).get('name', 'i')}/status/{tid}",
             "date": str(m.get("date", "")), "texte": m.get("content", ""), "langue": m.get("lang", ""),
             "likes": m.get("favorite_count", 0), "reposts": m.get("retweet_count", 0),
             "reponses": m.get("reply_count", 0), "vues": m.get("view_count", 0), "medias": []})
