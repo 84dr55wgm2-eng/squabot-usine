@@ -91,6 +91,29 @@ def a_poster(videos):
     (config.RACINE / "data" / "A-POSTER.md").write_text("\n".join(lignes) + "\n")
 
 
+def replanifier(pretes, maintenant):
+    """Vidéos en retard (accumulées avant l'audit) : étalées sur les prochains créneaux libres de leur chaîne,
+    jamais envoyées d'un coup. Trop vieilles (> 10 jours) : écartées, le buzz est passé."""
+    comptes = config.comptes()
+    pris = {(v["compte"], v.get("date_prevue", "")[:16]) for _, v in pretes}
+    for d, v in pretes:
+        quand = _date(v)
+        if not quand or quand >= maintenant: continue
+        if (maintenant - quand).days > 10:
+            v["statut"] = "perimee"; (d / "video.json").write_text(json.dumps(v, ensure_ascii=False, indent=2) + "\n"); continue
+        creneaux = ((comptes.get(v["compte"]) or {}).get("rythme") or {}).get("creneaux") or ["08:30", "12:30", "19:00"]
+        jour = maintenant.date()
+        while True:
+            libres = [f"{jour} {h}" for h in sorted(creneaux)
+                      if datetime.datetime.strptime(f"{jour} {h}", "%Y-%m-%d %H:%M").replace(tzinfo=PARIS) > maintenant
+                      and (v["compte"], f"{jour} {h}") not in pris]
+            if libres: break
+            jour += datetime.timedelta(days=1)
+        pris.add((v["compte"], libres[0])); v["date_prevue"] = libres[0]
+        (d / "video.json").write_text(json.dumps(v, ensure_ascii=False, indent=2) + "\n")
+    pretes[:] = [(d, v) for d, v in pretes if v.get("statut") != "perimee"]
+
+
 def publier():
     mode = reglages()["mode"]
     maintenant = datetime.datetime.now(PARIS)
@@ -106,6 +129,7 @@ def publier():
         print(f"Mode manuel : {len(pretes)} vidéo(s) dans data/A-POSTER.md", flush=True)
         return
     branches = coffre.branches()
+    replanifier(pretes, maintenant)
     for d, v in pretes:
         quand = _date(v)
         if quand and quand > maintenant + datetime.timedelta(hours=24): continue      # trop tôt
